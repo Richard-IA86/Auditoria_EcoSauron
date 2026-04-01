@@ -1,10 +1,17 @@
 # Acta de Auditoría — EcoSauron
 
-**Número de acta:** ACTA-XXXX
+**Número de acta:** ACTA-YYYYMMDD-NNN
 **Fecha de emisión:** YYYY-MM-DD
 **Auditor:** Agente Auditor Linux (El Ojo de Sauron)
 **Repositorio auditado:** `<nombre_del_repositorio>`
 **Rama/Commit auditado:** `<rama>` / `<sha_commit>`
+
+---
+
+> **Esquema de numeración:** `ACTA-YYYYMMDD-NNN`
+> - `YYYYMMDD` — fecha de emisión del acta
+> - `NNN` — número correlativo del día (001, 002, …)
+> - Ejemplo: `ACTA-20260401-001`
 
 ---
 
