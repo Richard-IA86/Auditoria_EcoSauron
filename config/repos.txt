@@ -1,0 +1,11 @@
+# Lista de repositorios externos a clonar y auditar.
+# Formato: <URL_GIT> [nombre_local_opcional]
+# Ejemplo:
+#   https://github.com/org/repo_uno
+#   https://github.com/org/repo_dos repo_alias
+
+# Ecosistema Multi-Root Workspace — Grupo POSE
+https://github.com/Richard-IA86/Planif_POSE.git          planif_pose
+https://github.com/Richard-IA86/BD_POSE_B52.git          bd_pose_b52
+https://github.com/Richard-IA86/Data-Analytics-Workspace.git  data_analytics
+https://github.com/Richard-IA86/Richard_IA86_Dev.git     richard_ia86_dev
