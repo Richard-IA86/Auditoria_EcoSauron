@@ -5,6 +5,13 @@
 **Auditor:** Agente Auditor Linux (El Ojo de Sauron)
 **Repositorio auditado:** `<nombre_del_repositorio>`
 **Rama/Commit auditado:** `<rama>` / `<sha_commit>`
+**Entorno:**
+- OS: `<uname -r>`
+- Python: `<python3 --version>`
+- black: `<black --version>`
+- flake8: `<flake8 --version>`
+- mypy: `<mypy --version>`
+- pre-commit: `<pre-commit --version>`
 
 ---
 

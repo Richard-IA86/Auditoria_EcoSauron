@@ -1,5 +1,10 @@
 # Auditoria_EcoSauron
 
+![Última actualización](https://img.shields.io/github/last-commit/Richard-IA86/Auditoria_EcoSauron)
+![Licencia](https://img.shields.io/github/license/Richard-IA86/Auditoria_EcoSauron)
+![Bash](https://img.shields.io/badge/shell-bash%20%E2%89%A54.x-blue)
+![Python](https://img.shields.io/badge/python-3.9%2B-blue)
+
 Centro de control, scripts de auditoría (Bash/Linux) y monitoreo
 QA para el ecosistema Multi-Root Workspace del proyecto.
 
