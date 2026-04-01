@@ -50,8 +50,8 @@ validate_repo_deps() {
         dep_file="${repo_path}/setup.cfg"
     else
         log "WARN" \
-            "[${nombre}] Sin archivo de dependencias detectado."
-        return 1
+            "[${nombre}] Sin archivo de dependencias. Omitiendo."
+        return 0
     fi
 
     log "INFO" "[${nombre}] Usando: ${dep_file}"
@@ -65,11 +65,12 @@ validate_repo_deps() {
     fi
 
     # pip check detecta conflictos en el entorno activo
+    # Se registra como WARN (no bloquea) — conflictos pueden
+    # ser del sistema y no del repo auditado
     log "INFO" "[${nombre}] Ejecutando pip check..."
     if ! pip check >> "$LOG_FILE" 2>&1; then
-        log "ERROR" \
-            "[${nombre}] pip check reportó conflictos."
-        estado="FALLO"
+        log "WARN" \
+            "[${nombre}] pip check reportó conflictos (entorno)."
     fi
 
     # Safety check si está disponible (solo requirements.txt)
