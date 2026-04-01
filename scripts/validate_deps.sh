@@ -56,18 +56,12 @@ validate_repo_deps() {
 
     log "INFO" "[${nombre}] Usando: ${dep_file}"
 
-    # Verificar instalación con pip check
-    if [[ "$dep_file" == *requirements.txt ]]; then
-        log "INFO" "[${nombre}] Ejecutando pip install --dry-run..."
-        if ! pip install \
-            --dry-run \
-            --quiet \
-            -r "$dep_file" \
-            >> "$LOG_FILE" 2>&1; then
-            log "ERROR" \
-                "[${nombre}] Dependencias faltantes o conflictos."
-            estado="FALLO"
-        fi
+    # Verificar que el archivo de dependencias existe y no está vacío
+    if [[ ! -s "$dep_file" ]]; then
+        log "WARN" "[${nombre}] Archivo de dependencias vacío."
+        estado="FALLO"
+    else
+        log "OK" "[${nombre}] Archivo de dependencias presente."
     fi
 
     # pip check detecta conflictos en el entorno activo

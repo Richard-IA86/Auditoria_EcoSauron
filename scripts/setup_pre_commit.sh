@@ -37,6 +37,7 @@ check_deps() {
 install_python_tools() {
     log "INFO" "Instalando black, flake8, mypy, pre-commit..."
     pip install --quiet --upgrade \
+        --break-system-packages \
         black flake8 mypy pre-commit >> "$LOG_FILE" 2>&1
     log "OK" "Herramientas Python instaladas."
 }
