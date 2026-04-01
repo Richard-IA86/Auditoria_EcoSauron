@@ -8,6 +8,26 @@ QA para el ecosistema Multi-Root Workspace del proyecto.
 
 ---
 
+## Prerrequisitos
+
+| Herramienta  | Versión mínima | Propósito                   |
+|--------------|----------------|-----------------------------|
+| bash         | 4.x            | Ejecución de scripts        |
+| git          | 2.x            | Control de versiones        |
+| python3      | 3.9+           | Entorno de análisis         |
+| pip          | 23+            | Gestión de paquetes         |
+| black        | 24.x           | Formateo PEP 8              |
+| flake8       | 7.x            | Análisis estático PEP 8     |
+| mypy         | 1.x            | Verificación de tipos       |
+| pre-commit   | 3.x            | Orquestación de hooks       |
+| safety       | opcional       | Auditoría de vulnerabilidades|
+
+```bash
+pip install --upgrade black flake8 mypy pre-commit safety
+```
+
+---
+
 ## Inicio Rápido
 
 ```bash
