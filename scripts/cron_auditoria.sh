@@ -7,6 +7,7 @@ set -euo pipefail
 
 REPO_DIR="/home/richard/Dev/auditoria_ecosauron"
 LOG_FILE="/var/log/ecosauron_auditoria.log"
+FLAG_FALLO="/tmp/ecosauron_FALLO.flag"
 TIMESTAMP="$(date '+%Y-%m-%dT%H:%M:%S')"
 
 echo "======================================" >> "$LOG_FILE"
@@ -20,9 +21,12 @@ EXIT_CODE=$?
 
 if [[ $EXIT_CODE -eq 0 ]]; then
     echo "[$TIMESTAMP] Auditoría finalizada: APROBADA" >> "$LOG_FILE"
+    rm -f "$FLAG_FALLO"
 else
     echo "[$TIMESTAMP] Auditoría finalizada: FALLIDA (código $EXIT_CODE)" \
         >> "$LOG_FILE"
+    echo "$TIMESTAMP | EXIT_CODE=$EXIT_CODE | Ver: $LOG_FILE" \
+        > "$FLAG_FALLO"
 fi
 
 echo "" >> "$LOG_FILE"
