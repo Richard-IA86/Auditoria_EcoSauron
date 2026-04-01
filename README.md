@@ -41,7 +41,21 @@ nano config/repos.txt
 
 # 2. Ejecuta el pipeline completo
 bash scripts/run_audit.sh
+
+# 3. (Opcional) Corregir violaciones en BD_POSE_B52
+bash scripts/fix_bd_pose_b52.sh
 ```
+
+### Auditoría automática diaria
+
+El cron ejecuta el pipeline cada día a las 06:00:
+
+```
+0 6 * * * /home/richard/Dev/auditoria_ecosauron/scripts/cron_auditoria.sh
+```
+
+Log del sistema: `/var/log/ecosauron_auditoria.log`  
+Si la auditoría falla, aparece una alerta al abrir la terminal.
 
 ---
 
@@ -63,9 +77,24 @@ Auditoria_EcoSauron/
 │   ├── clone_repos.sh       # Clonación masiva de repos
 │   ├── setup_pre_commit.sh  # Instalación de hooks
 │   ├── validate_deps.sh     # Cobertura de dependencias 100%
-│   └── run_audit.sh         # Orquestador del pipeline
+│   ├── run_audit.sh         # Orquestador del pipeline
+│   ├── cron_auditoria.sh    # Wrapper para ejecución por cron
+│   └── fix_bd_pose_b52.sh   # Corrección de violaciones BD_POSE_B52
 └── workspaces/              # Repos clonados (auto-generado)
 ```
+
+---
+
+## Estado del Ecosistema
+
+| Repositorio | flake8 | black | mypy | Estado |
+|-------------|--------|-------|------|--------|
+| bd_pose_b52 | ⚠️ | ✅ | ⚠️ merge incompleto | REQUIERE ACCIÓN |
+| data_analytics | ✅ | ✅ | ✅ | APROBADO |
+| planif_pose | ✅ | ✅ | ✅ | APROBADO |
+| richard_ia86_dev | ✅ | ✅ | ✅ | APROBADO |
+
+*Última auditoría: 2026-04-01*
 
 ---
 
@@ -73,6 +102,13 @@ Auditoria_EcoSauron/
 
 Consulta [`docs/guia_tecnica.md`](docs/guia_tecnica.md) para la
 referencia completa de scripts, convenciones y configuración CI.
+
+| Documento | Descripción |
+|-----------|-------------|
+| [docs/guia_tecnica.md](docs/guia_tecnica.md) | Referencia técnica de scripts |
+| [docs/bitacora_trazabilidad.md](docs/bitacora_trazabilidad.md) | Historial de ejecuciones |
+| [docs/actas/ACTA-20260401-001.md](docs/actas/ACTA-20260401-001.md) | Acta Sprint 1 |
+| [docs/actas/ACTA-20260401-002.md](docs/actas/ACTA-20260401-002.md) | Acta Sprint 2 |
 
 ---
 
