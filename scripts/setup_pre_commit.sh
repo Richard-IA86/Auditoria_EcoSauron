@@ -126,9 +126,9 @@ for repo_path in "${WORKSPACES_DIR}"/*/; do
                     "[${nombre}] pre-commit install falló."
             fi
         fi
-        ((exito++))
+        exito=$(( exito + 1 ))
     else
-        ((fallo++))
+        fallo=$(( fallo + 1 ))
     fi
 done
 

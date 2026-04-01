@@ -124,9 +124,9 @@ shopt -s nullglob
 for repo_path in "${WORKSPACES_DIR}"/*/; do
     repo_path="${repo_path%/}"
     if validate_repo_deps "$repo_path"; then
-        ((exito++))
+        exito=$(( exito + 1 ))
     else
-        ((fallo++))
+        fallo=$(( fallo + 1 ))
     fi
 done
 

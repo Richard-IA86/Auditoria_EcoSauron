@@ -71,19 +71,19 @@ while IFS= read -r linea || [[ -n "$linea" ]]; do
         log "INFO" "[${nombre}] Ya existe. Ejecutando git pull..."
         if git -C "$destino" pull --ff-only >> "$LOG_FILE" 2>&1; then
             log "OK" "[${nombre}] Actualizado correctamente."
-            ((exito++))
+            exito=$(( exito + 1 ))
         else
             log "WARN" "[${nombre}] No se pudo actualizar."
-            ((fallo++))
+            fallo=$(( fallo + 1 ))
         fi
     else
         log "INFO" "[${nombre}] Clonando desde ${url}..."
         if git clone "$url" "$destino" >> "$LOG_FILE" 2>&1; then
             log "OK" "[${nombre}] Clonado correctamente."
-            ((exito++))
+            exito=$(( exito + 1 ))
         else
             log "ERROR" "[${nombre}] Falló la clonación."
-            ((fallo++))
+            fallo=$(( fallo + 1 ))
         fi
     fi
 done < "$REPOS_FILE"
