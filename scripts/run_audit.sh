@@ -93,6 +93,66 @@ run_static_analysis() {
     return 0
 }
 
+update_bitacora() {
+    local resultado="$1"
+    local bitacora="${REPO_ROOT}/docs/bitacora_trazabilidad.md"
+    local marker="<!-- Inserta nuevas entradas debajo de esta línea -->"
+
+    # Lista de repos auditados
+    local repos_lista=""
+    for repo_path in "${WORKSPACES_DIR}"/*/; do
+        repo_path="${repo_path%/}"
+        repos_lista+="  - $(basename "$repo_path")"$'\n'
+    done
+    [[ -z "$repos_lista" ]] && repos_lista="  - (ninguno)"$'\n'
+
+    # Anomalías del log (líneas ERROR/WARN)
+    local anomalias=""
+    anomalias=$(grep -E '\[ERROR\]|\[WARN\]' "$AUDIT_LOG" \
+        | sed 's/^/  - /' || true)
+    [[ -z "$anomalias" ]] && anomalias="  - Sin anomalías"
+
+    # Bloque a insertar
+    local entrada
+    entrada=$(cat <<EOF
+
+---
+**Fecha y hora:** $(date '+%Y-%m-%d %H:%M:%S')
+**Ejecutado por:** $(whoami)@$(hostname)
+**Script ejecutado:** scripts/run_audit.sh
+**Workspaces auditados:**
+${repos_lista}**Resultado general:** ${resultado}
+**Pasos:**
+| Etapa             | Estado                     |
+|-------------------|----------------------------|
+| Clonación         | ${estado_clone}  |
+| Pre-commit Hooks  | ${estado_hooks}  |
+| Dependencias      | ${estado_deps}   |
+| Análisis Estático | ${estado_static} |
+**Anomalías detectadas:**
+${anomalias}
+**Acciones tomadas:**
+  - (pendiente)
+**Log referenciado:**
+  \`${AUDIT_LOG}\`
+---
+EOF
+)
+
+    # Insertar después del marcador
+    if grep -qF "$marker" "$bitacora" 2>/dev/null; then
+        local tmp
+        tmp=$(mktemp)
+        awk -v bloque="$entrada" \
+            -v marker="$marker" \
+            '{print} $0 == marker {print bloque}' \
+            "$bitacora" > "$tmp" && mv "$tmp" "$bitacora"
+        log "INFO" "Bitácora actualizada: ${bitacora}"
+    else
+        log "WARN" "Marcador no encontrado en bitácora."
+    fi
+}
+
 generate_report() {
     local reporte="${REPORT_DIR}/reporte_$(date +%Y%m%d_%H%M%S).md"
     mkdir -p "$REPORT_DIR"
@@ -187,9 +247,19 @@ else
 fi
 
 # -----------------------------------------------------------
-# Reporte final
+# Reporte final + bitácora
 # -----------------------------------------------------------
 generate_report
+
+if [[ "${estado_clone}" == *FALLO* ]] || \
+   [[ "${estado_deps}" == *FALLO* ]] || \
+   [[ "${estado_static}" == *errores* ]]; then
+    resultado_general="❌ FALLIDO"
+else
+    resultado_general="✅ APROBADO"
+fi
+
+update_bitacora "$resultado_general"
 
 log "INFO" "Pipeline completado."
 log "INFO" "Clonación:  ${estado_clone}"
@@ -197,9 +267,7 @@ log "INFO" "Hooks:      ${estado_hooks}"
 log "INFO" "Deps:       ${estado_deps}"
 log "INFO" "Estático:   ${estado_static}"
 
-if [[ "${estado_clone}" == *FALLO* ]] || \
-   [[ "${estado_deps}" == *FALLO* ]] || \
-   [[ "${estado_static}" == *errores* ]]; then
+if [[ "$resultado_general" == *FALLIDO* ]]; then
     log "ERROR" "AUDITORÍA FALLIDA. Revisa los reportes."
     exit 1
 fi
