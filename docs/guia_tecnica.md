@@ -47,7 +47,7 @@ Auditoria_EcoSauron/
 | flake8       | 7.x            | Análisis estático PEP 8      |
 | mypy         | 1.x            | Verificación de tipos        |
 | pre-commit   | 3.x            | Orquestación de hooks        |
-| safety       | opcional       | Auditoría de vulnerabilidades|
+| safety       | opcional       | Auditoría de vulnerabilidades (**no bloquea el pipeline**, emite `WARN`)|
 
 ### Instalación rápida de herramientas Python
 
@@ -96,6 +96,10 @@ bash scripts/setup_pre_commit.sh [directorio_workspaces]
 
 Verifica cobertura de dependencias al 100% usando `pip check`
 y (si está disponible) `safety check`.
+
+> **Comportamiento de `safety`:** si detecta vulnerabilidades emite
+> `[WARN]` en el log pero **no detiene el pipeline**. Se recomienda
+> resolverlas en el sprint siguiente.
 
 ```bash
 bash scripts/validate_deps.sh [directorio_workspaces]
