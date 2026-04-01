@@ -16,6 +16,11 @@ LOG_DIR="${REPO_ROOT}/logs"
 AUDIT_LOG="${LOG_DIR}/auditoria_$(date +%Y%m%d_%H%M%S).log"
 REPORT_DIR="${REPO_ROOT}/docs/reportes"
 
+# Herramientas en ~/.local/bin (instaladas por pip --user)
+# No siempre están en PATH en entornos no-interactivos (cron)
+LOCAL_BIN="${HOME}/.local/bin"
+export PATH="${LOCAL_BIN}:${PATH}"
+
 # -----------------------------------------------------------
 # Funciones auxiliares
 # -----------------------------------------------------------
