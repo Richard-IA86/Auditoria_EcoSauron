@@ -1,0 +1,8 @@
+# Lista de repositorios externos a clonar y auditar.
+# Formato: <URL_GIT> [nombre_local_opcional]
+# Ejemplo:
+#   https://github.com/org/repo_uno
+#   https://github.com/org/repo_dos repo_alias
+
+# Agrega aquí los repositorios del ecosistema multi-root:
+# https://github.com/Richard-IA86/repo_ejemplo
