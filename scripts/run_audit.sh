@@ -83,9 +83,9 @@ run_static_analysis() {
     # mypy
     if command -v mypy &>/dev/null; then
         log "INFO" "[${nombre}] mypy..."
-        mypy "$repo_path" \
+        (cd "$repo_path" && mypy . \
             --ignore-missing-imports \
-            >> "$AUDIT_LOG" 2>&1 || ((errores++))
+            >> "$AUDIT_LOG" 2>&1) || ((errores++))
     fi
 
     if [[ "$errores" -gt 0 ]]; then
