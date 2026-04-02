@@ -21,6 +21,27 @@ log_err()  { echo -e "${ROJO}[PRE-COMMIT ERR]${RESET}  $*"; }
 log_warn() { echo -e "${AMARILLO}[PRE-COMMIT WARN]${RESET} $*"; }
 
 # -----------------------------------------------------------
+# Capa 3: Guardia — scripts efímeros en staging
+# Detecta archivos con patrones de uso único que no
+# deben persistir en el repositorio.
+# -----------------------------------------------------------
+EFIMERO_PATRON='(^|/)(_temp_|debug_|diagnostico_|analisis_|analizar_|analyze_|scan_|prueba_|test_fix_|benchmark_)[^/]*\.(py|sh)$'
+staged_efimeros=$(git diff --cached --name-only --diff-filter=ACM | \
+    grep -E "$EFIMERO_PATRON" || true)
+
+if [[ -n "$staged_efimeros" ]]; then
+    log_err "Scripts efímeros detectados en staging:"
+    echo "$staged_efimeros" | sed 's/^/  → /'
+    echo ""
+    echo "Estos archivos son de uso único (debug/análisis/scan)."
+    echo "Protocolo obligatorio:"
+    echo "  a) Usa /tmp/ para crearlos → desaparecen solos."
+    echo "  b) Si están en el proyecto: rm <archivo> antes de commit."
+    echo "Commit bloqueado por El Ojo de Sauron."
+    exit 1
+fi
+
+# -----------------------------------------------------------
 # Obtener archivos Python en staging area
 # -----------------------------------------------------------
 staged_py=$(git diff --cached --name-only --diff-filter=ACM | \
