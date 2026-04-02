@@ -98,6 +98,27 @@ run_static_analysis() {
     return 0
 }
 
+run_tests() {
+    local repo_path="$1"
+    local nombre
+    nombre=$(basename "$repo_path")
+
+    if [[ ! -d "${repo_path}/tests" ]]; then
+        log "INFO" "[${nombre}] Sin directorio tests/ — saltando."
+        return 0
+    fi
+
+    log "INFO" "[${nombre}] pytest..."
+    if (cd "$repo_path" && python3 -m pytest tests/ \
+            --tb=short -q >> "$AUDIT_LOG" 2>&1); then
+        log "OK" "[${nombre}] Tests: APROBADO."
+        return 0
+    else
+        log "ERROR" "[${nombre}] Tests: FALLIDO."
+        return 1
+    fi
+}
+
 update_bitacora() {
     local resultado="$1"
     local bitacora="${REPO_ROOT}/docs/bitacora_trazabilidad.md"
@@ -134,6 +155,7 @@ ${repos_lista}**Resultado general:** ${resultado}
 | Pre-commit Hooks  | ${estado_hooks}  |
 | Dependencias      | ${estado_deps}   |
 | Análisis Estático | ${estado_static} |
+| Tests Unitarios   | ${estado_tests}  |
 **Anomalías detectadas:**
 ${anomalias}
 **Acciones tomadas:**
@@ -177,6 +199,7 @@ generate_report() {
 | Pre-commit Hooks   | ${estado_hooks}  |
 | Dependencias       | ${estado_deps}   |
 | Análisis Estático  | ${estado_static} |
+| Tests Unitarios    | ${estado_tests}  |
 
 ## Repositorios Auditados
 
@@ -204,6 +227,7 @@ estado_clone="⏳"
 estado_hooks="⏳"
 estado_deps="⏳"
 estado_static="⏳"
+estado_tests="⏳"
 
 # -----------------------------------------------------------
 # PASO 1: Clonación
@@ -252,13 +276,29 @@ else
 fi
 
 # -----------------------------------------------------------
+# PASO 5: Tests unitarios por repositorio
+# -----------------------------------------------------------
+errores_tests=0
+for repo_path in "${WORKSPACES_DIR}"/*/; do
+    repo_path="${repo_path%/}"
+    run_tests "$repo_path" || ((errores_tests++))
+done
+
+if [[ "$errores_tests" -eq 0 ]]; then
+    estado_tests="✅ OK"
+else
+    estado_tests="❌ ${errores_tests} repo(s) con errores"
+fi
+
+# -----------------------------------------------------------
 # Reporte final + bitácora
 # -----------------------------------------------------------
 generate_report
 
 if [[ "${estado_clone}" == *FALLO* ]] || \
    [[ "${estado_deps}" == *FALLO* ]] || \
-   [[ "${estado_static}" == *errores* ]]; then
+   [[ "${estado_static}" == *errores* ]] || \
+   [[ "${estado_tests}" == *errores* ]]; then
     resultado_general="❌ FALLIDO"
 else
     resultado_general="✅ APROBADO"
@@ -271,6 +311,7 @@ log "INFO" "Clonación:  ${estado_clone}"
 log "INFO" "Hooks:      ${estado_hooks}"
 log "INFO" "Deps:       ${estado_deps}"
 log "INFO" "Estático:   ${estado_static}"
+log "INFO" "Tests:      ${estado_tests}"
 
 if [[ "$resultado_general" == *FALLIDO* ]]; then
     log "ERROR" "AUDITORÍA FALLIDA. Revisa los reportes."
