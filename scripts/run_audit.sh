@@ -151,6 +151,7 @@ ${repos_lista}**Resultado general:** ${resultado}
 **Pasos:**
 | Etapa             | Estado                     |
 |-------------------|----------------------------|
+| Ramas GitHub      | ${estado_ramas}  |
 | Clonación         | ${estado_clone}  |
 | Pre-commit Hooks  | ${estado_hooks}  |
 | Dependencias      | ${estado_deps}   |
@@ -194,8 +195,7 @@ generate_report() {
 ## Resumen Ejecutivo
 
 | Etapa              | Estado  |
-|--------------------|---------|
-| Clonación          | ${estado_clone}  |
+|--------------------|---------|| Ramas GitHub       | ${estado_ramas}  || Clonación          | ${estado_clone}  |
 | Pre-commit Hooks   | ${estado_hooks}  |
 | Dependencias       | ${estado_deps}   |
 | Análisis Estático  | ${estado_static} |
@@ -223,11 +223,27 @@ EOF
 mkdir -p "$LOG_DIR" "$WORKSPACES_DIR"
 banner
 
+estado_ramas="⏳"
 estado_clone="⏳"
 estado_hooks="⏳"
 estado_deps="⏳"
 estado_static="⏳"
 estado_tests="⏳"
+
+# -----------------------------------------------------------
+# PASO 0: Verificación de ramas huérfanas (no bloqueante)
+# Detecta ramas remotas sin PR en GitHub. Solo emite WARN;
+# no detiene el pipeline para no bloquear CI/cron.
+# -----------------------------------------------------------
+log "INFO" "=== PASO: VERIFICAR_RAMAS ==="
+if bash "${SCRIPT_DIR}/verificar_ramas.sh" >> "$AUDIT_LOG" 2>&1; then
+    estado_ramas="✅ OK"
+    log "OK" "PASO [VERIFICAR_RAMAS] Sin ramas huérfanas."
+else
+    estado_ramas="⚠️  WARN"
+    log "WARN" \
+        "PASO [VERIFICAR_RAMAS] Ramas sin PR detectadas — revisar."
+fi
 
 # -----------------------------------------------------------
 # PASO 1: Clonación
@@ -307,6 +323,7 @@ fi
 update_bitacora "$resultado_general"
 
 log "INFO" "Pipeline completado."
+log "INFO" "Ramas:      ${estado_ramas}"
 log "INFO" "Clonación:  ${estado_clone}"
 log "INFO" "Hooks:      ${estado_hooks}"
 log "INFO" "Deps:       ${estado_deps}"
