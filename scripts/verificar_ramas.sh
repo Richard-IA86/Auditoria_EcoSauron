@@ -102,7 +102,9 @@ detectar_huerfanas() {
 
     local ramas
     ramas=$(echo "$ramas_json" | \
-        jq -r '.[].name' | grep -v '^main$' || true)
+        jq -r '.[].name' | \
+        grep -v '^main$' | \
+        grep -v '^copilot/' || true)
 
     if [[ -z "$ramas" ]]; then
         return 0
