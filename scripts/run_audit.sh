@@ -64,20 +64,20 @@ run_static_analysis() {
 
     log "INFO" "[${nombre}] Análisis estático iniciado."
 
-    # flake8
+    # flake8 — cd al repo para leer setup.cfg local (extend-ignore, etc.)
     if command -v flake8 &>/dev/null; then
         log "INFO" "[${nombre}] flake8..."
-        flake8 "$repo_path" \
+        (cd "$repo_path" && flake8 . \
             --max-line-length=79 \
             --statistics \
-            >> "$AUDIT_LOG" 2>&1 || ((errores++))
+            >> "$AUDIT_LOG" 2>&1) || ((errores++))
     fi
 
-    # black --check
+    # black --check — cd al repo para leer pyproject.toml local
     if command -v black &>/dev/null; then
         log "INFO" "[${nombre}] black --check..."
-        black --check --line-length 79 "$repo_path" \
-            >> "$AUDIT_LOG" 2>&1 || ((errores++))
+        (cd "$repo_path" && black --check --line-length 79 . \
+            >> "$AUDIT_LOG" 2>&1) || ((errores++))
     fi
 
     # mypy
