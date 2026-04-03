@@ -88,6 +88,26 @@ run_static_analysis() {
             >> "$AUDIT_LOG" 2>&1) || ((errores++))
     fi
 
+    # pymarkdown — linting de archivos .md en docs/
+    if command -v pymarkdown &>/dev/null; then
+        local md_dir="${repo_path}/docs"
+        if [[ -d "$md_dir" ]]; then
+            log "INFO" "[${nombre}] pymarkdown (docs/)..."
+            local md_cfg="${REPO_ROOT}/config/markdownlint.json"
+            local md_args=()
+            [[ -f "$md_cfg" ]] && md_args=("-c" "$md_cfg")
+            if ! pymarkdown "${md_args[@]}" scan \
+                    --recurse "$md_dir" \
+                    >> "$AUDIT_LOG" 2>&1; then
+                log "WARN" \
+                    "[${nombre}] pymarkdown: infracciones .md en docs/."
+            else
+                log "INFO" \
+                    "[${nombre}] pymarkdown docs/: OK."
+            fi
+        fi
+    fi
+
     if [[ "$errores" -gt 0 ]]; then
         log "ERROR" \
             "[${nombre}] Análisis: ${errores} herramienta(s) KO."
@@ -304,6 +324,27 @@ if [[ "$errores_tests" -eq 0 ]]; then
     estado_tests="✅ OK"
 else
     estado_tests="❌ ${errores_tests} repo(s) con errores"
+fi
+
+# -----------------------------------------------------------
+# PASO 6: pymarkdown — actas del orquestador (solo WARN)
+# -----------------------------------------------------------
+estado_markdown="✅ OK"
+if command -v pymarkdown &>/dev/null; then
+    local_actas="${REPO_ROOT}/docs/actas"
+    md_cfg="${REPO_ROOT}/config/markdownlint.json"
+    md_args=()
+    [[ -f "$md_cfg" ]] && md_args=("-c" "$md_cfg")
+    if [[ -d "$local_actas" ]]; then
+        log "INFO" "[orquestador] pymarkdown actas..."
+        if ! pymarkdown "${md_args[@]}" scan \
+                --recurse "$local_actas" \
+                >> "$AUDIT_LOG" 2>&1; then
+            estado_markdown="⚠️  WARN (deuda en actas)"
+            log "WARN" \
+                "[orquestador] pymarkdown: actas con infracciones."
+        fi
+    fi
 fi
 
 # -----------------------------------------------------------

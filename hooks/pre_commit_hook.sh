@@ -3,7 +3,8 @@
 # pre_commit_hook.sh
 # Hook de pre-commit reutilizable.
 # Se instala como .git/hooks/pre-commit en los repos externos.
-# Ejecuta: black, flake8, mypy sobre archivos staged.
+# Ejecuta: black, flake8, mypy sobre archivos .py staged.
+#          pymarkdown sobre archivos .md staged.
 # Rol: Agente Auditor Linux (El Ojo de Sauron)
 # =============================================================
 set -euo pipefail
@@ -42,13 +43,16 @@ if [[ -n "$staged_efimeros" ]]; then
 fi
 
 # -----------------------------------------------------------
-# Obtener archivos Python en staging area
+# Obtener archivos en staging area (Python y Markdown)
 # -----------------------------------------------------------
 staged_py=$(git diff --cached --name-only --diff-filter=ACM | \
     grep '\.py$' || true)
 
-if [[ -z "$staged_py" ]]; then
-    log_ok "Sin archivos Python en staging. Nada que validar."
+staged_md=$(git diff --cached --name-only --diff-filter=ACM | \
+    grep '\.md$' || true)
+
+if [[ -z "$staged_py" && -z "$staged_md" ]]; then
+    log_ok "Sin archivos .py/.md en staging. Nada que validar."
     exit 0
 fi
 
@@ -106,6 +110,31 @@ if command -v mypy &>/dev/null; then
     fi
 else
     log_warn "mypy no está instalado."
+fi
+
+# -----------------------------------------------------------
+# pymarkdown — linting Markdown
+# -----------------------------------------------------------
+if [[ -n "$staged_md" ]]; then
+    if command -v pymarkdown &>/dev/null; then
+        echo "--- pymarkdown (formato Markdown) ---"
+        # Buscar config en el repo actual o en el orquestador
+        MD_CFG=""
+        if [[ -f "config/markdownlint.json" ]]; then
+            MD_CFG="-c config/markdownlint.json"
+        elif [[ -f ".markdownlint.json" ]]; then
+            MD_CFG="-c .markdownlint.json"
+        fi
+        if ! echo "$staged_md" | \
+                xargs -d '\n' pymarkdown $MD_CFG scan; then
+            log_err "pymarkdown: infracciones en archivos .md."
+            ((errores++))
+        else
+            log_ok "pymarkdown: OK"
+        fi
+    else
+        log_warn "pymarkdown no instalado (pip install pymarkdownlnt)."
+    fi
 fi
 
 # -----------------------------------------------------------
