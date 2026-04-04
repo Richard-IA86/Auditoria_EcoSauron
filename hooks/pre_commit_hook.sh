@@ -61,55 +61,67 @@ errores=0
 # -----------------------------------------------------------
 # black — formato
 # -----------------------------------------------------------
-if command -v black &>/dev/null; then
-    echo "--- black (formato, max 79 chars) ---"
-    if ! echo "$staged_py" | xargs -d '\n' black \
-        --check \
-        --line-length 79 \
-        --quiet; then
-        log_err "black: archivos sin formatear."
-        echo "Ejecuta: black --line-length 79 <archivo>"
-        ((errores++))
+if [[ -n "$staged_py" ]]; then
+    if command -v black &>/dev/null; then
+        echo "--- black (formato, max 79 chars) ---"
+        if ! echo "$staged_py" | xargs -d '\n' black \
+            --check \
+            --line-length 79 \
+            --quiet; then
+            log_err "black: archivos sin formatear."
+            echo "Ejecuta: black --line-length 79 <archivo>"
+            ((errores++))
+        else
+            log_ok "black: OK"
+        fi
     else
-        log_ok "black: OK"
+        log_warn "black no está instalado."
     fi
 else
-    log_warn "black no está instalado."
+    log_ok "black: sin archivos .py en staging."
 fi
 
 # -----------------------------------------------------------
 # flake8 — estilo y errores
 # -----------------------------------------------------------
-if command -v flake8 &>/dev/null; then
-    echo "--- flake8 (PEP8, max-line=79) ---"
-    if ! echo "$staged_py" | xargs -d '\n' flake8 \
-        --max-line-length=79 \
-        --show-source \
-        --statistics; then
-        log_err "flake8: infracciones encontradas."
-        ((errores++))
+if [[ -n "$staged_py" ]]; then
+    if command -v flake8 &>/dev/null; then
+        echo "--- flake8 (PEP8, max-line=79) ---"
+        if ! echo "$staged_py" | xargs -d '\n' flake8 \
+            --max-line-length=79 \
+            --show-source \
+            --statistics; then
+            log_err "flake8: infracciones encontradas."
+            ((errores++))
+        else
+            log_ok "flake8: OK"
+        fi
     else
-        log_ok "flake8: OK"
+        log_warn "flake8 no está instalado."
     fi
 else
-    log_warn "flake8 no está instalado."
+    log_ok "flake8: sin archivos .py en staging."
 fi
 
 # -----------------------------------------------------------
 # mypy — tipos estáticos
 # -----------------------------------------------------------
-if command -v mypy &>/dev/null; then
-    echo "--- mypy (tipado estático) ---"
-    if ! echo "$staged_py" | xargs -d '\n' mypy \
-        --ignore-missing-imports \
-        --no-error-summary; then
-        log_err "mypy: errores de tipado."
-        ((errores++))
+if [[ -n "$staged_py" ]]; then
+    if command -v mypy &>/dev/null; then
+        echo "--- mypy (tipado estático) ---"
+        if ! echo "$staged_py" | xargs -d '\n' mypy \
+            --ignore-missing-imports \
+            --no-error-summary; then
+            log_err "mypy: errores de tipado."
+            ((errores++))
+        else
+            log_ok "mypy: OK"
+        fi
     else
-        log_ok "mypy: OK"
+        log_warn "mypy no está instalado."
     fi
 else
-    log_warn "mypy no está instalado."
+    log_ok "mypy: sin archivos .py en staging."
 fi
 
 # -----------------------------------------------------------
