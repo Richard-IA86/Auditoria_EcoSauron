@@ -21,6 +21,11 @@ REPORT_DIR="${REPO_ROOT}/docs/reportes"
 LOCAL_BIN="${HOME}/.local/bin"
 export PATH="${LOCAL_BIN}:${PATH}"
 
+# python3 del sistema para ejecutar los tests de los repos.
+# Se fija explícitamente para que el venv del auditor
+# (si está activo) no interfiera con pytest de los repos.
+SYS_PYTHON3="/usr/bin/python3"
+
 # -----------------------------------------------------------
 # Funciones auxiliares
 # -----------------------------------------------------------
@@ -129,7 +134,7 @@ run_tests() {
     fi
 
     log "INFO" "[${nombre}] pytest..."
-    if (cd "$repo_path" && python3 -m pytest tests/ \
+    if (cd "$repo_path" && "$SYS_PYTHON3" -m pytest tests/ \
             --tb=short -q >> "$AUDIT_LOG" 2>&1); then
         log "OK" "[${nombre}] Tests: APROBADO."
         return 0

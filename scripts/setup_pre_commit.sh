@@ -58,35 +58,9 @@ deploy_hook() {
     return 0
 }
 
-setup_precommit_yaml() {
-    local repo_path="$1"
-    local cfg="${repo_path}/.pre-commit-config.yaml"
-
-    if [[ -f "$cfg" ]]; then
-        log "INFO" "[${repo_path}] .pre-commit-config.yaml ya existe."
-        return 0
-    fi
-
-    log "INFO" "Creando .pre-commit-config.yaml en ${repo_path}"
-    cat > "$cfg" <<'EOF'
-repos:
-  - repo: https://github.com/psf/black
-    rev: 24.3.0
-    hooks:
-      - id: black
-        language_version: python3
-  - repo: https://github.com/PyCQA/flake8
-    rev: 7.0.0
-    hooks:
-      - id: flake8
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.9.0
-    hooks:
-      - id: mypy
-        additional_dependencies: [types-all]
-EOF
-    log "OK" ".pre-commit-config.yaml creado."
-}
+# setup_precommit_yaml eliminado: el hook personalizado
+# (pre_commit_hook.sh) se despliega directamente via deploy_hook().
+# El marco pre-commit no se usa — evita conflictos y WARNs.
 
 # -----------------------------------------------------------
 # Inicialización
@@ -115,18 +89,6 @@ for repo_path in "${WORKSPACES_DIR}"/*/; do
     nombre=$(basename "$repo_path")
 
     if deploy_hook "$repo_path"; then
-        setup_precommit_yaml "$repo_path"
-
-        if command -v pre-commit &>/dev/null; then
-            log "INFO" "[${nombre}] Instalando pre-commit en repo..."
-            if ! pre-commit install \
-                --install-hooks \
-                -c "${repo_path}/.pre-commit-config.yaml" \
-                >> "$LOG_FILE" 2>&1; then
-                log "WARN" \
-                    "[${nombre}] pre-commit install falló."
-            fi
-        fi
         exito=$(( exito + 1 ))
     else
         fallo=$(( fallo + 1 ))
