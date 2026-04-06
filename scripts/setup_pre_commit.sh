@@ -12,6 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 WORKSPACES_DIR="${1:-${REPO_ROOT}/workspaces}"
 HOOK_SRC="${REPO_ROOT}/hooks/pre_commit_hook.sh"
+HOOK_PREP_SRC="${REPO_ROOT}/hooks/prepare_commit_msg_hook.sh"
 LOG_DIR="${REPO_ROOT}/logs"
 LOG_FILE="${LOG_DIR}/setup_precommit_$(date +%Y%m%d_%H%M%S).log"
 
@@ -45,16 +46,21 @@ install_python_tools() {
 deploy_hook() {
     local repo_path="$1"
     local hook_dest="${repo_path}/.git/hooks/pre-commit"
+    local prep_dest="${repo_path}/.git/hooks/prepare-commit-msg"
 
     if [[ ! -d "${repo_path}/.git" ]]; then
         log "WARN" "[${repo_path}] No es un repo Git. Omitiendo."
         return 1
     fi
 
-    log "INFO" "Desplegando hook en: ${repo_path}"
+    log "INFO" "Desplegando hooks en: ${repo_path}"
     cp "$HOOK_SRC" "$hook_dest"
     chmod +x "$hook_dest"
-    log "OK" "Hook instalado en ${hook_dest}"
+    log "OK" "pre-commit instalado en ${hook_dest}"
+
+    cp "$HOOK_PREP_SRC" "$prep_dest"
+    chmod +x "$prep_dest"
+    log "OK" "prepare-commit-msg instalado en ${prep_dest}"
     return 0
 }
 
@@ -74,6 +80,11 @@ install_python_tools
 
 if [[ ! -f "$HOOK_SRC" ]]; then
     log "ERROR" "Hook fuente no encontrado: ${HOOK_SRC}"
+    exit 1
+fi
+
+if [[ ! -f "$HOOK_PREP_SRC" ]]; then
+    log "ERROR" "Hook fuente no encontrado: ${HOOK_PREP_SRC}"
     exit 1
 fi
 
