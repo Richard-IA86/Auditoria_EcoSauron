@@ -1,0 +1,143 @@
+name: Dashboard GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-dashboard:
+    name: Generar dashboard HTML
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generar index.html
+        run: |
+          FECHA=$(date '+%Y-%m-%d %H:%M UTC')
+          cat > docs/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="es">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>El Ojo de Sauron — Dashboard QA</title>
+            <style>
+              body { font-family: monospace; background: #0d1117; color: #c9d1d9;
+                     max-width: 860px; margin: 40px auto; padding: 0 20px; }
+              h1 { color: #f0883e; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
+              h2 { color: #8b949e; font-size: 0.9em; font-weight: normal; margin-top: -10px; }
+              table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+              th { background: #161b22; color: #8b949e; text-align: left;
+                   padding: 8px 12px; border: 1px solid #30363d; }
+              td { padding: 8px 12px; border: 1px solid #30363d; }
+              tr:hover td { background: #161b22; }
+              .badge img { vertical-align: middle; }
+              footer { color: #484f58; font-size: 0.8em; margin-top: 40px; }
+            </style>
+          </head>
+          <body>
+            <h1>&#128065; El Ojo de Sauron — Dashboard QA</h1>
+            <h2>Grupo POSE — Ecosistema Multi-Root Workspace</h2>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Repositorio</th>
+                  <th>QA Pipeline</th>
+                  <th>Último commit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><a href="https://github.com/Richard-IA86/Planif_POSE"
+                    style="color:#58a6ff">Planif_POSE</a></td>
+                  <td class="badge">
+                    <a href="https://github.com/Richard-IA86/Planif_POSE/actions/workflows/qa_pipeline.yml">
+                      <img src="https://github.com/Richard-IA86/Planif_POSE/actions/workflows/qa_pipeline.yml/badge.svg"
+                           alt="QA Planif_POSE">
+                    </a>
+                  </td>
+                  <td>
+                    <img src="https://img.shields.io/github/last-commit/Richard-IA86/Planif_POSE"
+                         alt="last commit">
+                  </td>
+                </tr>
+                <tr>
+                  <td><a href="https://github.com/Richard-IA86/BD_POSE_B52"
+                    style="color:#58a6ff">BD_POSE_B52</a></td>
+                  <td class="badge">
+                    <a href="https://github.com/Richard-IA86/BD_POSE_B52/actions/workflows/qa_pipeline.yml">
+                      <img src="https://github.com/Richard-IA86/BD_POSE_B52/actions/workflows/qa_pipeline.yml/badge.svg"
+                           alt="QA BD_POSE_B52">
+                    </a>
+                  </td>
+                  <td>
+                    <img src="https://img.shields.io/github/last-commit/Richard-IA86/BD_POSE_B52"
+                         alt="last commit">
+                  </td>
+                </tr>
+                <tr>
+                  <td><a href="https://github.com/Richard-IA86/Richard_IA86_Dev"
+                    style="color:#58a6ff">Richard_IA86_Dev</a></td>
+                  <td class="badge">
+                    <a href="https://github.com/Richard-IA86/Richard_IA86_Dev/actions/workflows/qa_pipeline.yml">
+                      <img src="https://github.com/Richard-IA86/Richard_IA86_Dev/actions/workflows/qa_pipeline.yml/badge.svg"
+                           alt="QA Richard_IA86_Dev">
+                    </a>
+                  </td>
+                  <td>
+                    <img src="https://img.shields.io/github/last-commit/Richard-IA86/Richard_IA86_Dev"
+                         alt="last commit">
+                  </td>
+                </tr>
+                <tr>
+                  <td><a href="https://github.com/Richard-IA86/Data-Analytics-Workspace"
+                    style="color:#58a6ff">Data-Analytics-Workspace</a></td>
+                  <td class="badge">
+                    <a href="https://github.com/Richard-IA86/Data-Analytics-Workspace/actions/workflows/qa_pipeline.yml">
+                      <img src="https://github.com/Richard-IA86/Data-Analytics-Workspace/actions/workflows/qa_pipeline.yml/badge.svg"
+                           alt="QA Data-Analytics">
+                    </a>
+                  </td>
+                  <td>
+                    <img src="https://img.shields.io/github/last-commit/Richard-IA86/Data-Analytics-Workspace"
+                         alt="last commit">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <footer>
+              Generado automáticamente por El Ojo de Sauron &mdash;
+              <span id="fecha">FECHA_PLACEHOLDER</span>
+            </footer>
+          </body>
+          </html>
+          EOF
+          sed -i "s/FECHA_PLACEHOLDER/$FECHA/" docs/index.html
+
+      - name: Publicar en GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/
+
+  deploy:
+    name: Deploy GitHub Pages
+    needs: build-dashboard
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
