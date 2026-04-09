@@ -1,8 +1,12 @@
 # Prompts de Tareas — Sprint 16 / Jornada 2026-04-09
 
 > Generado por: El Ojo de Sauron (Agente Auditor QA)
-> Fecha: 2026-04-09
+> Fecha: 2026-04-09 (revisado arquitectura 2026-04-09)
 > Pipeline base: 5/5 APROBADO — 231 tests verdes
+>
+> **Arquitectura de referencia:**
+> Asus (Linux) = motor CI/CD + SQL Express + VPN + Streamlit
+> HP (Windows) = simulador usuario final (demo, .bat, UX)
 
 ---
 
@@ -10,33 +14,37 @@
 
 ---
 
-### PROMPT-01 — Smoke Test HP (richard_ia86_dev)
+### PROMPT-01 — Smoke Test HP — Validación UX Usuario Final (richard_ia86_dev)
 
-**Contexto:** La demo del Director Financiero es el 10/04/2026 a las 11:00 hs.
-El `lanzar_demo.py` fue completado (commit `3c5ff09`). Falta validar en la
-máquina HP que el bat delegador atraviesa el flujo completo hasta dashboard
-visible.
+**Entorno:** HP (Windows) — simulador de máquina de usuario
+**No aplica a Asus.** El pipeline (ETL, BD, datos) ya fue validado en Asus.
+Este test verifica únicamente que el usuario final ve lo correcto en pantalla.
+
+**Contexto:** Demo del Director Financiero: 10/04/2026 11:00 hs.
+`lanzar_demo.py` completado en Asus (commit `3c5ff09`). Validar que el
+launcher `.bat` funciona en el entorno Windows del usuario.
 
 **Tarea para el dev:**
 
 ```text
-Ejecutar en máquina HP:
+Ejecutar en máquina HP (Windows):
 
-1. Abrir CMD como usuario normal (no admin).
+1. Abrir CMD como usuario normal (sin admin).
 2. Correr: demo_presentacion.bat
-3. Verificar que:
-   a. El venv activa sin errores.
-   b. lanzar_demo.py muestra el menú de 4 opciones.
-   c. Seleccionar opción DESPACHOS → pipeline completa sin error.
-   d. El dashboard abre en localhost:8502 con datos visibles.
-   e. Tab "Resumen" muestra métricas no vacías.
-4. Registrar resultado en estado_proyecto.json:
-   "siguiente_accion": "SMOKE_TEST_HP_RESULTADO: OK/FALLO + detalle"
-5. Si hay fallo: copiar traceback completo y abrir issue en GitHub.
+3. Verificar UX:
+   a. venv activa sin errores.
+   b. Menú de 4 opciones aparece.
+   c. Opción DESPACHOS → pipeline sin traceback.
+   d. Dashboard abre en localhost:8502 con datos visibles.
+   e. Tab Resumen muestra métricas (no vacío).
+   f. Formato números: separador miles y decimales legibles.
+4. Si hay fallo en HP: el problema es de entorno Windows (rutas, venv, bat).
+   NO es un bug de lógica — esos ya están cubiertos por los 139 tests en Asus.
+5. Registrar en estado_proyecto.json:
+   "siguiente_accion": "SMOKE_HP: OK/FALLO — detalle corto"
 ```
 
-**Criterio de éxito:** Dashboard carga con datos. Sin tracebacks. Menú
-interactivo responde.
+**Criterio de éxito:** Dashboard carga con datos en HP. Sin tracebacks.
 
 **Archivos relevantes:**
 
@@ -48,34 +56,49 @@ interactivo responde.
 
 ### PROMPT-02 — Resolver 420 Rechazados DESPACHOS (richard_ia86_dev)
 
-**Contexto:** El archivo `pendientes_carga.csv` contiene 420 registros que
-no pasaron la validación de hash/BD en ciclos anteriores. El Tab "Pendientes"
-del dashboard los muestra. Sin resolverlos, la carga de meses anteriores
-arrancará con deuda.
+**Entorno:** Asus (Linux) — pyodbc + SQLEXPRESS disponibles. Ejecutar aquí.
+
+**Contexto:** `pendientes_carga.csv` contiene 420 registros sin cargar.
+Con la arquitectura correcta (SQLEXPRESS en Asus), este diagnóstico se
+hace directamente contra la BD real — sin mock, sin necesitar HP.
 
 **Tarea para el dev:**
 
 ```text
-1. Abrir el Tab "Pendientes" en el dashboard (localhost:8502).
-2. Exportar o leer pendientes_carga.csv directamente.
-3. Identificar el motivo de rechazo (columna "motivo_rechazo" o similar).
-4. Clasificar los rechazos:
-   a. Datos corruptos en fuente → documentar y descartar.
-   b. Mapeo incorrecto → corregir en transformer.py.
-   c. Duplicados legítimos → ajustar política en bd_loader_despachos.py.
-5. Reejecutar el pipeline y verificar que PENDIENTE=0.
-6. Commitear el fix con mensaje:
-   fix(despachos): resolver N rechazados pendientes_carga — tipo X
+En Asus — con SQLEXPRESS activo:
+
+1. Leer pendientes_carga.csv:
+   import pandas as pd
+   df = pd.read_csv("output/report_gerencias/pendientes_carga.csv", sep=";")
+   print(df["motivo_rechazo"].value_counts())
+
+2. Clasificar los rechazos por motivo_rechazo:
+   a. hash_duplicado → ya están en BD, descartar sin error.
+   b. columna_nula → corregir en transformer.py.
+   c. tipo_invalido  → corregir mapeo en pipeline_stages.py.
+
+3. Corregir en el módulo correspondiente.
+
+4. Reejecutar pipeline desde Asus:
+   python3 projects/report_direccion/run_despachos.py
+
+5. Verificar PENDIENTE=0 en la BD real (requiere msodbcsql18 en
+   Linux — ver proyecto_ojo_sauron_asus_linux.md W1-01).
+   Si el driver no está instalado, verificar desde SSMS en Asus (Windows):
+   SELECT COUNT(*) FROM PRODUCCION.pendientes WHERE estado='PENDIENTE'
+
+6. Commitear:
+   fix(despachos): resolver N rechazados — motivo: X
 ```
 
-**Criterio de éxito:** `pendientes_carga.csv` vacío o con 0 líneas de datos.
-Dashboard Tab Pendientes sin filas.
+**Criterio de éxito:** `pendientes_carga.csv` sin filas activas.
+Consulta SQL retorna 0.
 
 **Archivos relevantes:**
 
 - `projects/report_direccion/src/bd_loader_despachos.py`
 - `projects/report_direccion/src/transformer.py`
-- Archivo: `output/report_gerencias/pendientes_carga.csv` (o ruta equivalente)
+- `output/report_gerencias/pendientes_carga.csv`
 
 ---
 
