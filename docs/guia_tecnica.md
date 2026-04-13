@@ -13,7 +13,7 @@ estricta del código en los repositorios externos.**
 
 ## Estructura del Repositorio
 
-```
+```text
 Auditoria_EcoSauron/
 ├── config/
 │   └── repos.txt            # Lista de repos a auditar
@@ -73,7 +73,8 @@ bash scripts/clone_repos.sh /ruta/workspaces
 ```
 
 **Formato de `config/repos.txt`:**
-```
+
+```text
 # Comentario
 https://github.com/org/repo_uno
 https://github.com/org/repo_dos  alias_local
@@ -106,6 +107,7 @@ bash scripts/validate_deps.sh [directorio_workspaces]
 ```
 
 **Archivos detectados automáticamente:**
+
 - `requirements.txt`
 - `pyproject.toml`
 - `setup.cfg`
@@ -144,7 +146,7 @@ bash scripts/run_audit.sh [directorio_workspaces]
 
 Todos los scripts generan logs con timestamp en `logs/`:
 
-```
+```text
 logs/clone_repos_YYYYMMDD_HHMMSS.log
 logs/setup_precommit_YYYYMMDD_HHMMSS.log
 logs/validate_deps_YYYYMMDD_HHMMSS.log
@@ -152,7 +154,8 @@ logs/auditoria_YYYYMMDD_HHMMSS.log
 ```
 
 Formato de cada línea:
-```
+
+```text
 [YYYY-MM-DDTHH:MM:SS] [NIVEL] Mensaje
 ```
 
@@ -168,6 +171,101 @@ Para ejecutar el pipeline completo desde cron o CI local:
 # Auditoría diaria a las 03:00
 0 3 * * * /ruta/scripts/run_audit.sh >> /var/log/sauron.log 2>&1
 ```
+
+---
+
+## Transferencia de Servicio
+
+> Este apartado existe para que el sistema sobreviva
+> independientemente de quién lo construyó.
+> Si el responsable actual no estuviera disponible, esta
+> sección es el punto de partida para que otra persona
+> retome el control sin perder nada.
+
+### Principio de diseño
+
+Todo el sistema está construido sobre:
+
+- **Código abierto** (sin dependencias propietarias críticas)
+- **Git como única fuente de verdad** (GitHub — accesible con
+  credenciales propias)
+- **Infraestructura reproducible** (cualquier servidor Linux
+  Ubuntu 24.04 puede alojar el sistema con los scripts del repo)
+
+Cambiar de titular no requiere reescribir nada.
+Solo requiere transferir el acceso a las cuentas.
+
+---
+
+### Cuentas a transferir
+
+| Cuenta | Servicio | Acción |
+|--------|----------|--------|
+| **GitHub** `Richard-IA86` | Repos del ecosistema | Transferir repos o agregar co-owner como admin |
+| **Hetzner Cloud** | VPS (API + BD + frontend) | Cambiar titular y email de facturación |
+| **Cloudflare** | DNS + proxy + SSL | Cambiar email de la cuenta |
+| **NIC Argentina** | Dominio `.com.ar` | Formulario de transferencia en nic.ar (requiere DNI) |
+| **Dependabot / GH Actions** | CI/CD | Se transfiere automáticamente con el repo |
+
+---
+
+### Datos críticos que NO están en GitHub
+
+Estos elementos no se versionar por seguridad.
+Deben estar documentados en un gestor de contraseñas
+(ej: Bitwarden, 1Password) accesible al nuevo titular:
+
+| Ítem | Descripción |
+|------|-------------|
+| `conexion.template.json` | Credenciales de conexión a SQL Server (usuario + contraseña SA) |
+| Claves SSH del servidor | Par de claves en `~/.ssh/` de la iMac — el servidor solo acepta esa clave pública |
+| Pares de claves WireGuard | Generados en la iMac — `wg genkey` produce claves que NO se pushean |
+| JWT secret key | Variable de entorno en FastAPI — no está en el repo |
+| Hetzner API token | Para gestión del servidor por CLI |
+
+**Acción recomendada:** exportar todos estos ítems a un
+gestor de contraseñas compartido con el responsable de
+continuidad antes de iniciar Sprint 17.
+
+---
+
+### Procedimiento mínimo de recuperación
+
+Si se pierde acceso total y hay que reconstruir desde cero:
+
+```bash
+# 1. Clonar el orquestador (todo parte desde aquí)
+git clone https://github.com/Richard-IA86/Auditoria_EcoSauron.git
+cd Auditoria_EcoSauron
+
+# 2. Clonar todos los repos del ecosistema
+bash scripts/clone_repos.sh
+
+# 3. Instalar dependencias Python
+pip install black flake8 mypy pymarkdown
+
+# 4. Ejecutar pipeline completo
+bash scripts/run_audit.sh
+```
+
+El sistema vuelve a estar operativo en un servidor nuevo
+en menos de 2 horas siguiendo la guía de infraestructura
+del Sprint 17 (`docs/sprint17_arquitectura_pose.md`).
+
+---
+
+### Contactos de soporte por componente
+
+| Componente | Documentación oficial |
+|------------|----------------------|
+| Ubuntu 24.04 | ubuntu.com/server/docs |
+| SQL Server Linux | learn.microsoft.com/sql/linux |
+| FastAPI | fastapi.tiangolo.com |
+| Next.js | nextjs.org/docs |
+| WireGuard | wireguard.com/quickstart |
+| Hetzner Cloud | docs.hetzner.com |
+| Cloudflare | developers.cloudflare.com |
+| Let's Encrypt | certbot.eff.org |
 
 ---
 
