@@ -259,7 +259,7 @@ del Sprint 17 (`docs/sprint17_arquitectura_pose.md`).
 | Componente | Documentación oficial |
 |------------|----------------------|
 | Ubuntu 24.04 | ubuntu.com/server/docs |
-| SQL Server Linux | learn.microsoft.com/sql/linux |
+| PostgreSQL | postgresql.org/docs |
 | FastAPI | fastapi.tiangolo.com |
 | Next.js | nextjs.org/docs |
 | WireGuard | wireguard.com/quickstart |

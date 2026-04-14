@@ -2,7 +2,7 @@
 
 > **Estado:** PLANIFICADO — pendiente confirmación para iniciar backlog formal
 > **Fecha de planificación:** 2026-04-13
-> **Próxima acción:** definir dominio `.com.ar` y crear cuentas Hetzner/Cloudflare
+> **Próxima acción:** crear servidor CX33 y configurar DNS Cloudflare para gestionpose.com.ar
 
 ---
 
@@ -27,11 +27,11 @@ El sistema actual (Streamlit local + `.bat`) tiene 5 problemas confirmados:
 ### Stack completo
 
 ```text
-ETL Python  →  SQL Server Express  →  FastAPI (JWT)  →  Next.js / React
-(sin cambios)  (migrado a Linux)      (nuevo)            (nuevo)
-                     ↑
-               WireGuard VPN
-               (acceso admin)
+ETL Python  →  PostgreSQL 16  →  FastAPI (JWT)  →  Next.js / React
+(sin cambios)  (en Linux)        (nuevo)            (nuevo)
+                    ↑
+              WireGuard VPN
+              (acceso admin)
                      ↓
          nginx + Let's Encrypt SSL
                      ↓
@@ -44,13 +44,13 @@ ETL Python  →  SQL Server Express  →  FastAPI (JWT)  →  Next.js / React
 
 | Componente | Decisión | Estado |
 |------------|----------|--------|
-| Base de datos | SQL Server 2022 Express en Linux | ✅ Cerrado |
+| Base de datos | PostgreSQL 16 en Linux | ✅ Cerrado |
 | Auth API | JWT propio — FastAPI + python-jose | ✅ Cerrado |
 | VPN | WireGuard nativo (kernel Linux) | ✅ Cerrado |
-| Dominio | `.com.ar` — NIC Argentina | ⏳ Nombre pendiente |
+| Dominio | `gestionpose.com.ar` — NIC Argentina | ✅ Cerrado |
 | DNS | Cloudflare Free — Full strict + proxy | ⏳ Cuenta a crear |
 | SSL | Let's Encrypt + certbot | ✅ Cerrado |
-| Servidor | Hetzner CX32 — €7.52/mes | ⏳ Cuenta a crear |
+| Servidor | Hetzner CX33 — €6.99/mes | ✅ Cuenta creada, pendiente activación tarjeta |
 | OS servidor | Ubuntu 24.04 LTS | ✅ Cerrado |
 | Frontend | Next.js + TypeScript (Copilot como escritor) | ✅ Cerrado |
 | API | FastAPI + uvicorn | ✅ Cerrado |
@@ -58,21 +58,23 @@ ETL Python  →  SQL Server Express  →  FastAPI (JWT)  →  Next.js / React
 
 ---
 
-## 3. Specs del servidor (Hetzner CX32)
+## 3. Specs del servidor (Hetzner CX33)
 
 | Recurso | Valor |
 |---------|-------|
-| vCPU | 4 (AMD) |
+| vCPU | 4 (Intel®/AMD) |
 | RAM | 8 GB |
-| Disco | 80 GB NVMe |
+| Disco | 80 GB SSD |
 | Red | 20 TB/mes |
-| Costo | €7.52/mes |
+| Costo | €6.99/mes |
 | OS recomendado | Ubuntu 24.04 LTS |
 
-**¿Por qué CX32 y no CX22 (4 GB)?**
-SQL Server 2022 Express requiere mínimo 1.5 GB de RAM solo para el motor.
-Con FastAPI + nginx + OS + margen de crecimiento, 4 GB es el límite justo.
-Los €3/mes extra del CX32 evitan problemas de memoria cuando los datos crezcan.
+**¿Por qué CX33 y no CX23 (4 GB)?**
+PostgreSQL puede usar toda la RAM disponible para shared_buffers y caché.
+Con 8 GB el motor usa ~2 GB para shared_buffers + FastAPI + nginx + OS,
+dejando margen real de crecimiento sin restricciones de licencia.
+CX33 reemplaza al CX32 con las mismas specs a €0.53/mes menos
+(plan Cost-Optimized — hardware probado y confiable).
 
 ---
 
@@ -82,14 +84,14 @@ Los €3/mes extra del CX32 evitan problemas de memoria cuando los datos crezcan
 Puerto 443  TCP  → internet (nginx → Next.js + FastAPI)
 Puerto 51820 UDP → internet (WireGuard handshake)
 Puerto 22   TCP  → SOLO desde peers VPN
-Puerto 1433 TCP  → SOLO desde peers VPN
+Puerto 5432 TCP  → SOLO desde peers VPN
 Todo lo demás   → DROP
 ```
 
 Cloudflare con proxy activo ("nube naranja") oculta la IP real del servidor.
 Cualquier ataque directo al host queda bloqueado en el edge de Cloudflare.
 
-**Regla de oro:** SQL Server nunca expuesto a internet. Solo accesible por VPN.
+**Regla de oro:** PostgreSQL nunca expuesto a internet. Solo accesible por VPN.
 
 ---
 
@@ -117,7 +119,7 @@ Si algo sale mal durante Sprint 17, estos son los puntos de retorno seguros:
 | data\_analytics | `14c7999` | ci: workflow\_dispatch manual |
 
 Comando de rollback: `git reset --hard <hash>`
-**Los datos en SQL Express son independientes del código — no se tocan en ningún caso.**
+**Los datos en PostgreSQL son independientes del código — no se tocan en ningún caso.**
 
 ---
 
