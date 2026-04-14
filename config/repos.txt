@@ -9,3 +9,4 @@ https://github.com/Richard-IA86/Planif_POSE.git          planif_pose
 https://github.com/Richard-IA86/BD_POSE_B52.git          bd_pose_b52
 https://github.com/Richard-IA86/Data-Analytics-Workspace.git  data_analytics
 https://github.com/Richard-IA86/Richard_IA86_Dev.git     richard_ia86_dev
+https://github.com/Richard-IA86/GestionComp.git          gestion_comp
