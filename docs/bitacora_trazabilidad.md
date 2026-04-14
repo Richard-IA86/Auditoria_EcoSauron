@@ -16,6 +16,43 @@ Los logs detallados se encuentran en `logs/`.
 
 ## Registro de Ejecuciones
 
+---
+
+**Fecha y hora:** 2026-04-14 12:00:31
+**Ejecutado por:** richard@richard-iMac
+**Script ejecutado:** scripts/run_audit.sh
+**Workspaces auditados:**
+
+- bd_pose_b52
+- data_analytics
+- planif_pose
+- richard_ia86_dev
+
+**Resultado:** ✅ AUDITORÍA APROBADA — 5/5 pasos OK — Inicio de jornada
+
+| Paso | Estado |
+|------|--------|
+| Verificar ramas | ✅ OK |
+| Clonación | ✅ OK |
+| Hooks | ✅ OK |
+| Dependencias | ✅ OK |
+| Análisis estático | ✅ OK |
+| Tests | ✅ OK |
+
+**Tests totales:** 239 passed, 1 skipped
+(richard 139+1skip / planif 47 / bd_pose 7 / data_analytics 46)
+
+**Acciones tomadas:**
+
+- Inicio de jornada 2026-04-14: pipeline aprobado sin intervención.
+- fix(pipeline): run_audit.sh ahora ejecuta `pytest` sin `tests/`
+  explícito, respetando pytest.ini de cada repo.
+- Sprint 17 en estado PLANIFICADO — pendiente inicio formal.
+- Acta emitida: ACTA-20260414-001.md
+
+**Log referenciado:**
+`docs/actas/ACTA-20260414-001.md`
+
 ### Plantilla de Entrada
 
 ```text
@@ -54,6 +91,65 @@ Los logs detallados se encuentran en `logs/`.
 ## Historial
 
 <!-- Inserta nuevas entradas debajo de esta línea -->
+
+---
+**Fecha y hora:** 2026-04-14 12:00:31
+**Ejecutado por:** richard@richard-iMac
+**Script ejecutado:** scripts/run_audit.sh
+**Workspaces auditados:**
+  - bd_pose_b52
+  - data_analytics
+  - planif_pose
+  - richard_ia86_dev
+**Resultado general:** ✅ APROBADO
+**Pasos:**
+| Etapa             | Estado                     |
+|-------------------|----------------------------|
+| Ramas GitHub      | ✅ OK  |
+| Clonación         | ✅ OK  |
+| Pre-commit Hooks  | ✅ OK  |
+| Dependencias      | ✅ OK   |
+| Análisis Estático | ✅ OK |
+| Tests Unitarios   | ✅ OK  |
+**Anomalías detectadas:**
+  - [2026-04-14T12:00:10] [WARN] [data_analytics] pymarkdown: infracciones .md en docs/.
+**Acciones tomadas:**
+  - (pendiente)
+**Log referenciado:**
+  `/home/richard/Dev/auditoria_ecosauron/logs/auditoria_20260414_115946.log`
+---
+
+---
+**Fecha y hora:** 2026-04-14 06:00:45
+**Ejecutado por:** richard@richard-iMac
+**Script ejecutado:** scripts/run_audit.sh
+**Workspaces auditados:**
+  - bd_pose_b52
+  - data_analytics
+  - planif_pose
+  - richard_ia86_dev
+**Resultado general:** ❌ FALLIDO
+**Pasos:**
+| Etapa             | Estado                     |
+|-------------------|----------------------------|
+| Ramas GitHub      | ✅ OK  |
+| Clonación         | ❌ FALLO  |
+| Pre-commit Hooks  | ✅ OK  |
+| Dependencias      | ✅ OK   |
+| Análisis Estático | ✅ OK |
+| Tests Unitarios   | ✅ OK  |
+**Anomalías detectadas:**
+  - [2026-04-14T06:00:05] [WARN] [planif_pose] No se pudo actualizar.
+  - [2026-04-14T06:00:05] [WARN] [bd_pose_b52] No se pudo actualizar.
+  - [2026-04-14T06:00:07] [WARN] [richard_ia86_dev] No se pudo actualizar.
+  - [2026-04-14T06:00:07] [WARN] Revisa el log: /home/richard/Dev/auditoria_ecosauron/logs/clone_repos_20260414_060004.log
+  - [2026-04-14T06:00:07] [ERROR] PASO [CLONACION] FALLÓ. Pipeline detenido.
+  - [2026-04-14T06:00:24] [WARN] [data_analytics] pymarkdown: infracciones .md en docs/.
+**Acciones tomadas:**
+  - (pendiente)
+**Log referenciado:**
+  `/home/richard/Dev/auditoria_ecosauron/logs/auditoria_20260414_060001.log`
+---
 
 ---
 **Fecha y hora:** 2026-04-13 12:05:22

@@ -134,7 +134,7 @@ run_tests() {
     fi
 
     log "INFO" "[${nombre}] pytest..."
-    if (cd "$repo_path" && "$SYS_PYTHON3" -m pytest tests/ \
+    if (cd "$repo_path" && "$SYS_PYTHON3" -m pytest \
             --tb=short -q >> "$AUDIT_LOG" 2>&1); then
         log "OK" "[${nombre}] Tests: APROBADO."
         return 0
