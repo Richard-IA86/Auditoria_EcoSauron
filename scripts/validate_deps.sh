@@ -64,6 +64,19 @@ validate_repo_deps() {
         log "OK" "[${nombre}] Archivo de dependencias presente."
     fi
 
+    # Instalar dependencias del repo para que pytest pueda importarlas
+    if [[ "$dep_file" == *requirements.txt ]]; then
+        log "INFO" \
+            "[${nombre}] Instalando dependencias (pip --user)..."
+        if ! pip install --user -q \
+                -r "$dep_file" >> "$LOG_FILE" 2>&1; then
+            log "WARN" \
+                "[${nombre}] pip install completó con advertencias."
+        else
+            log "OK" "[${nombre}] Dependencias instaladas."
+        fi
+    fi
+
     # pip check detecta conflictos en el entorno activo
     # Se registra como WARN (no bloquea) — conflictos pueden
     # ser del sistema y no del repo auditado
