@@ -54,7 +54,7 @@ pendientes=0
 # BLOQUE 1: Orquestador (auditoria_ecosauron)
 # -----------------------------------------------------------
 separador
-echo -e "${BOLD}[1/3] Orquestador (auditoria_ecosauron)${RESET}"
+echo -e "${BOLD}[1/4] Orquestador (auditoria_ecosauron)${RESET}"
 separador
 
 cd "$REPO_ROOT"
@@ -84,7 +84,7 @@ fi
 # -----------------------------------------------------------
 echo ""
 separador
-echo -e "${BOLD}[2/3] Repositorios del ecosistema${RESET}"
+echo -e "${BOLD}[2/4] Repositorios del ecosistema${RESET}"
 separador
 
 if [[ ! -f "$REPOS_FILE" ]]; then
@@ -150,7 +150,7 @@ done < "$REPOS_FILE"
 # -----------------------------------------------------------
 echo ""
 separador
-echo -e "${BOLD}[3/3] Ramas huérfanas en GitHub (sin PR)${RESET}"
+echo -e "${BOLD}[3/4] Ramas huérfanas en GitHub (sin PR)${RESET}"
 separador
 echo ""
 
@@ -164,6 +164,81 @@ else
     info "  3. Vuelve a ejecutar este script para confirmar"
     pendientes=$(( pendientes + 1 ))
 fi
+
+# -----------------------------------------------------------
+# BLOQUE 4: Verificar protocolo fin de jornada en cada repo
+# (jornada.fin.fecha debe coincidir con la fecha de hoy)
+# -----------------------------------------------------------
+echo ""
+separador
+echo -e "${BOLD}[4/4] Protocolo fin de jornada (JSON)${RESET}"
+separador
+echo ""
+
+HOY=$(date '+%Y-%m-%d')
+
+# Parser Python inline: verifica fecha de cierre en el JSON
+read -r -d '' PY_FIN << 'PYEOF' || true
+import sys
+import json
+import os
+
+repo_path = sys.argv[1]
+fp = os.path.join(
+    repo_path, "config", "estado_proyecto.json"
+)
+if not os.path.exists(fp):
+    print("SIN_JSON")
+    sys.exit(0)
+with open(fp, encoding="utf-8") as fh:
+    data = json.load(fh)
+fin = data.get("jornada", {}).get("fin", {})
+fecha = str(fin.get("fecha", ""))
+print("FECHA:" + fecha)
+PYEOF
+
+while IFS= read -r linea || [[ -n "$linea" ]]; do
+    [[ "$linea" =~ ^#.*$ || -z "$linea" ]] && continue
+
+    url=$(echo "$linea" | awk '{print $1}')
+    nombre=$(echo "$linea" | awk '{print $2}')
+    [[ -z "$nombre" ]] && nombre=$(basename "$url" .git)
+    repo_path="${WORKSPACES_DIR}/${nombre}"
+
+    info "${nombre}"
+
+    if [[ ! -d "${repo_path}/.git" ]]; then
+        warn "No clonado — sin verificación de JSON."
+        continue
+    fi
+
+    salida=$(python3 -c "$PY_FIN" "$repo_path" 2>/dev/null \
+        || echo "ERROR_PARSE")
+
+    if [[ "$salida" == "SIN_JSON" ]]; then
+        warn "Sin config/estado_proyecto.json — onboarding pendiente."
+        pendientes=$(( pendientes + 1 ))
+        continue
+    fi
+
+    if [[ "$salida" == "ERROR_PARSE" ]]; then
+        warn "Error leyendo JSON."
+        pendientes=$(( pendientes + 1 ))
+        continue
+    fi
+
+    fecha_json=$(
+        echo "$salida" | grep "^FECHA:" | cut -d: -f2-
+    )
+
+    if [[ "$fecha_json" == "$HOY" ]]; then
+        ok "Cierre de jornada registrado (${HOY})."
+    else
+        warn "JSON sin actualizar — ejecuta 'fin de jornada' antes de cerrar."
+        pendientes=$(( pendientes + 1 ))
+    fi
+
+done < "$REPOS_FILE"
 
 # -----------------------------------------------------------
 # Resumen final
