@@ -25,3 +25,38 @@ No desarrollas las aplicaciones base; tú controlas y aseguras la calidad estric
 - **Convención de nombres:** Nombra TODOS los archivos y carpetas usando estrictamente `snake_case` (minúsculas).
 - **Formato PEP 8:** NUNCA modifiques ni generes código Python o comentarios que superen los 79 caracteres por línea.
 - Si te piden afectar un repositorio ajeno, generarás el script aquí (en `auditoria_ecosauron`) para que actúe sobre ellos remotamente de forma limpia.
+
+---
+
+## Protocolo de Jornada — Obligatorio
+
+### Trigger: "inicio de jornada"
+
+**Secuencia obligatoria — en este orden exacto:**
+
+1. Leer `config/estado_proyecto.json` de cada repo auditado
+   (archivos locales — estado al cierre de ayer).
+2. Ejecutar `git pull` en todos los repos del ecosistema:
+   - `/home/richard/Dev/auditoria_ecosauron`
+   - `workspaces/planif_pose`
+   - `workspaces/bd_pose_b52`
+   - `workspaces/richard_ia86_dev`
+   - `workspaces/data_analytics`
+   - `workspaces/gestion_comp`
+3. Recién entonces mostrar las tareas diarias para evaluar:
+   - `tareas_pendientes_manana` por repo
+   - `notas_qa` y `estado_pipeline` por repo
+   - Commits nuevos descargados (si los hay)
+   - PRs o ramas remotas nuevas detectadas
+4. **No modificar ningún archivo en este trigger.**
+
+### Trigger: "fin de jornada"
+
+Actualizar `config/estado_proyecto.json` en cada repo afectado
+según sus instrucciones específicas, luego:
+
+```bash
+git add config/estado_proyecto.json
+git commit -m "chore(jornada): cierre YYYY-MM-DD"
+git push
+```
