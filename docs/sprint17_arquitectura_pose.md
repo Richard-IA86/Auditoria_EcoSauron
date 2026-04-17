@@ -48,13 +48,14 @@ ETL Python  →  PostgreSQL 16  →  FastAPI (JWT)  →  Next.js / React
 | Auth API | JWT propio — FastAPI + python-jose | ✅ Cerrado |
 | VPN | WireGuard nativo (kernel Linux) | ✅ Cerrado |
 | Dominio | `gestionpose.com.ar` — NIC Argentina | ✅ Cerrado |
-| DNS | Cloudflare Free — Full strict + proxy | ⏳ Cuenta a crear |
+| DNS | Cloudflare Free — Full strict + proxy | ✅ Cuenta creada (NS: `daisy.ns.cloudflare.com` / `pablo.ns.cloudflare.com`) |
 | SSL | Let's Encrypt + certbot | ✅ Cerrado |
-| Servidor | Hetzner CX33 — €6.99/mes | ✅ Cuenta creada, pendiente activación tarjeta |
+| Servidor | Hetzner CX33 — €6.99/mes | ⏳ Cuenta creada, en loop de verificación (ticket enviado, esperando) |
 | OS servidor | Ubuntu 24.04 LTS | ✅ Cerrado |
 | Frontend | Next.js + TypeScript (Copilot como escritor) | ✅ Cerrado |
 | API | FastAPI + uvicorn | ✅ Cerrado |
 | Power BI Pro | Comprar licencia ($10 USD/usuario/mes) | ⏳ No bloquea Sprint 17 |
+| SSH Key | Ed25519 (`Richard.r.ia86@gmail.com`) | ✅ Generada para acceso remoto seguro |
 
 ---
 
@@ -209,9 +210,10 @@ T28. Docs arquitectura final + bitácora sprint
 
 ## 11. Pendientes antes de iniciar el chat de Sprint 17
 
-- [ ] **Dominio:** elegir y registrar nombre `.com.ar` en NIC Argentina
-- [ ] **Hetzner:** crear cuenta en hetzner.com
-- [ ] **Cloudflare:** crear cuenta en cloudflare.com
+- [x] **Dominio:** nombre `.com.ar` registrado en NIC Argentina y delegación a NS de Cloudflare (`daisy` y `pablo`) completada.
+- [ ] **Hetzner:** resolver verificación de cuenta (en loop, correo enviado a soporte) para contratar CX33.
+- [x] **Cloudflare:** cuenta creada y nameservers asignados.
+- [x] **SSH:** Public key generada (`ssh-ed25519 ... Richard.r.ia86@gmail.com`) lista para inyectar en el servidor.
 - [ ] **Power BI Pro:** comprar cuando el frontend esté estable (no bloquea Sprint 17)
 
 ---
