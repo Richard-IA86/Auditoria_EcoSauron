@@ -204,6 +204,7 @@ T25. Agregar Pose_Frontend al pipeline EcoSauron (PASO 7)
 T26. Procesar crudos acumulados con ETL existente (batch)
 T27. Acta de cierre Sprint 17
 T28. Docs arquitectura final + bitácora sprint
+T29. Automatizacion de maestros loockups
 ```
 
 ---
