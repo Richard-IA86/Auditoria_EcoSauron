@@ -176,6 +176,7 @@ ${repos_lista}**Resultado general:** ${resultado}
 **Pasos:**
 | Etapa             | Estado                     |
 |-------------------|----------------------------|
+| JSON Estado       | ${estado_json}   |
 | Ramas GitHub      | ${estado_ramas}  |
 | Clonación         | ${estado_clone}  |
 | Pre-commit Hooks  | ${estado_hooks}  |
@@ -220,7 +221,7 @@ generate_report() {
 ## Resumen Ejecutivo
 
 | Etapa              | Estado  |
-|--------------------|---------|| Ramas GitHub       | ${estado_ramas}  || Clonación          | ${estado_clone}  |
+|--------------------|---------|| JSON Estado        | ${estado_json}   || Ramas GitHub       | ${estado_ramas}  || Clonación          | ${estado_clone}  |
 | Pre-commit Hooks   | ${estado_hooks}  |
 | Dependencias       | ${estado_deps}   |
 | Análisis Estático  | ${estado_static} |
@@ -248,6 +249,7 @@ EOF
 mkdir -p "$LOG_DIR" "$WORKSPACES_DIR"
 banner
 
+estado_json="⏳"
 estado_ramas="⏳"
 estado_clone="⏳"
 estado_hooks="⏳"
@@ -256,7 +258,27 @@ estado_static="⏳"
 estado_tests="⏳"
 
 # -----------------------------------------------------------
-# PASO 0: Verificación de ramas huérfanas (no bloqueante)
+# PASO 0: Validación estado_proyecto.json (bloqueante en ERROR)
+# Detecta: JSON inválido, jornada anidada, fechas desfasadas,
+# referencias cruzadas obsoletas, pipeline ausente.
+# -----------------------------------------------------------
+log "INFO" "=== PASO: AUDIT_ESTADO_JSON ==="
+if "$SYS_PYTHON3" "${SCRIPT_DIR}/audit_estado_json.py" \
+        "$WORKSPACES_DIR" >> "$AUDIT_LOG" 2>&1; then
+    estado_json="✅ OK"
+    log "OK" "PASO [AUDIT_ESTADO_JSON] Sin errores estructurales."
+else
+    estado_json="❌ FALLO"
+    log "ERROR" \
+        "PASO [AUDIT_ESTADO_JSON] Errores en estado_proyecto.json"\
+        " — corregir antes de continuar."
+    # No detiene el pipeline completo; permite que los demás
+    # pasos corran para tener reporte completo.
+fi
+
+# -----------------------------------------------------------
+# PASO 1 (antes PASO 0): Verificación de ramas huérfanas
+# (no bloqueante)
 # Detecta ramas remotas sin PR en GitHub. Solo emite WARN;
 # no detiene el pipeline para no bloquear CI/cron.
 # -----------------------------------------------------------
@@ -357,7 +379,8 @@ fi
 # -----------------------------------------------------------
 generate_report
 
-if [[ "${estado_clone}" == *FALLO* ]] || \
+if [[ "${estado_json}" == *FALLO* ]] || \
+   [[ "${estado_clone}" == *FALLO* ]] || \
    [[ "${estado_deps}" == *FALLO* ]] || \
    [[ "${estado_static}" == *errores* ]] || \
    [[ "${estado_tests}" == *errores* ]]; then
@@ -369,12 +392,13 @@ fi
 update_bitacora "$resultado_general"
 
 log "INFO" "Pipeline completado."
-log "INFO" "Ramas:      ${estado_ramas}"
-log "INFO" "Clonación:  ${estado_clone}"
-log "INFO" "Hooks:      ${estado_hooks}"
-log "INFO" "Deps:       ${estado_deps}"
-log "INFO" "Estático:   ${estado_static}"
-log "INFO" "Tests:      ${estado_tests}"
+log "INFO" "JSON Estado:  ${estado_json}"
+log "INFO" "Ramas:        ${estado_ramas}"
+log "INFO" "Clonación:    ${estado_clone}"
+log "INFO" "Hooks:        ${estado_hooks}"
+log "INFO" "Deps:         ${estado_deps}"
+log "INFO" "Estático:     ${estado_static}"
+log "INFO" "Tests:        ${estado_tests}"
 
 if [[ "$resultado_general" == *FALLIDO* ]]; then
     log "ERROR" "AUDITORÍA FALLIDA. Revisa los reportes."
