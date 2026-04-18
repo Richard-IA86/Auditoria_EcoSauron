@@ -11,6 +11,7 @@ Reglas aplicadas:
   W02 TAREA_OBSOLETA  — texto en tareas_pendientes de repo B
                         coincide con tareas_completadas de otro repo
   W03 PIPELINE_AUSENTE — jornada.fin.estado_pipeline vacío o ausente
+  W04 INTEGRACION_PENDIENTE — cambios_pendientes_integracion no vacío
 
 Salida: exit 0 si no hay errores (warnings no bloquean).
         exit 1 si hay al menos un ERROR.
@@ -146,6 +147,24 @@ for json_path in sorted(WORKSPACES_DIR.glob("*/config/estado_proyecto.json")):
         )
     else:
         ok(repo, f"W03 — pipeline: {pipeline_val}.")
+
+    # W04 — integracion_pendiente
+    cambios = data.get("cambios_pendientes_integracion", [])
+    if cambios:
+        for cambio in cambios:
+            if isinstance(cambio, dict):
+                desc = cambio.get("descripcion", "(sin descripción)")
+                acciones = cambio.get("acciones_requeridas", [])
+                warn(
+                    repo,
+                    "W04",
+                    (
+                        f"Integración pendiente: {desc} — "
+                        f"{len(acciones)} acción(es) requerida(s)."
+                    ),
+                )
+    else:
+        ok(repo, "W04 — sin integraciones pendientes.")
 
     # W01 — coherencia de fechas
     dl_obj = get_desarrollo_local(data)

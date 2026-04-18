@@ -177,6 +177,7 @@ ${repos_lista}**Resultado general:** ${resultado}
 | Etapa             | Estado                     |
 |-------------------|----------------------------|
 | JSON Estado       | ${estado_json}   |
+| Integraciones     | ${estado_integracion} |
 | Ramas GitHub      | ${estado_ramas}  |
 | Clonación         | ${estado_clone}  |
 | Pre-commit Hooks  | ${estado_hooks}  |
@@ -221,7 +222,7 @@ generate_report() {
 ## Resumen Ejecutivo
 
 | Etapa              | Estado  |
-|--------------------|---------|| JSON Estado        | ${estado_json}   || Ramas GitHub       | ${estado_ramas}  || Clonación          | ${estado_clone}  |
+|--------------------|---------|| JSON Estado        | ${estado_json}   || Integraciones      | ${estado_integracion} || Ramas GitHub       | ${estado_ramas}  || Clonación          | ${estado_clone}  |
 | Pre-commit Hooks   | ${estado_hooks}  |
 | Dependencias       | ${estado_deps}   |
 | Análisis Estático  | ${estado_static} |
@@ -250,6 +251,7 @@ mkdir -p "$LOG_DIR" "$WORKSPACES_DIR"
 banner
 
 estado_json="⏳"
+estado_integracion="⏳"
 estado_ramas="⏳"
 estado_clone="⏳"
 estado_hooks="⏳"
@@ -274,6 +276,16 @@ else
         " — corregir antes de continuar."
     # No detiene el pipeline completo; permite que los demás
     # pasos corran para tener reporte completo.
+fi
+
+# Detectar integraciones pendientes (W04) reportadas por audit
+if grep -q "\[W04\]" "$AUDIT_LOG" 2>/dev/null; then
+    estado_integracion="⚠️  PENDIENTE"
+    log "WARN" \
+        "PASO [INTEGRACION] Módulos sin integrar detectados" \
+        " — revisar cambios_pendientes_integracion en JSON."
+else
+    estado_integracion="✅ OK"
 fi
 
 # -----------------------------------------------------------
@@ -393,6 +405,7 @@ update_bitacora "$resultado_general"
 
 log "INFO" "Pipeline completado."
 log "INFO" "JSON Estado:  ${estado_json}"
+log "INFO" "Integraciones:${estado_integracion}"
 log "INFO" "Ramas:        ${estado_ramas}"
 log "INFO" "Clonación:    ${estado_clone}"
 log "INFO" "Hooks:        ${estado_hooks}"
