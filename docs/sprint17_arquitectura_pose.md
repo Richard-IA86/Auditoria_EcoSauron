@@ -1,8 +1,10 @@
 # Sprint 17 — Nueva Arquitectura POSE
 
-> **Estado:** PLANIFICADO — pendiente confirmación para iniciar backlog formal
+> **Estado:** ACTIVO — iniciado 2026-04-20
 > **Fecha de planificación:** 2026-04-13
-> **Próxima acción:** crear servidor CX33 y configurar DNS Cloudflare para gestionpose.com.ar
+> **Fecha de inicio formal:** 2026-04-20
+> **Bloqueante externo:** Hetzner — cuenta en verificación (ticket enviado)
+> **Estrategia de espera:** Ejecutar T30–T36 (sin servidor) mientras se resuelve el bloqueo
 
 ---
 
@@ -48,7 +50,7 @@ ETL Python  →  PostgreSQL 16  →  FastAPI (JWT)  →  Next.js / React
 | Auth API | JWT propio — FastAPI + python-jose | ✅ Cerrado |
 | VPN | WireGuard nativo (kernel Linux) | ✅ Cerrado |
 | Dominio | `gestionpose.com.ar` — NIC Argentina | ✅ Cerrado |
-| DNS | Cloudflare Free — Full strict + proxy | ✅ Cuenta creada (NS: `daisy.ns.cloudflare.com` / `pablo.ns.cloudflare.com`) |
+| DNS | Cloudflare Free — Full strict + proxy | ✅ Cuenta creada |
 | SSL | Let's Encrypt + certbot | ✅ Cerrado |
 | Servidor | Hetzner CX33 — €6.99/mes | ⏳ Cuenta creada, en loop de verificación (ticket enviado, esperando) |
 | OS servidor | Ubuntu 24.04 LTS | ✅ Cerrado |
@@ -211,11 +213,103 @@ T29. Automatizacion de maestros loockups
 
 ## 11. Pendientes antes de iniciar el chat de Sprint 17
 
-- [x] **Dominio:** nombre `.com.ar` registrado en NIC Argentina y delegación a NS de Cloudflare (`daisy` y `pablo`) completada.
+- [x] **Dominio:** nombre `.com.ar` registrado en NIC Argentina; delegación a NS Cloudflare completada.
 - [ ] **Hetzner:** resolver verificación de cuenta (en loop, correo enviado a soporte) para contratar CX33.
+- [ ] **T30–T36:** tareas ejecutables sin servidor — iniciadas 2026-04-20 (ver sección 13).
 - [x] **Cloudflare:** cuenta creada y nameservers asignados.
 - [x] **SSH:** Public key generada (`ssh-ed25519 ... Richard.r.ia86@gmail.com`) lista para inyectar en el servidor.
 - [ ] **Power BI Pro:** comprar cuando el frontend esté estable (no bloquea Sprint 17)
+
+---
+
+## 13. Ampliación Ecosistema — Gemini como Agente DevOps
+
+> **Origen:** Propuesta `Propuesta_Ecosistema_Ojo_Sauron.md` — aprobada 2026-04-20
+
+### Concepto central
+
+Dividir responsabilidades entre los dos agentes de IA del equipo:
+
+| Agente | Rol | Foco |
+|--------|-----|------|
+| **GitHub Copilot** | Auditor + Escritor | Lógica de código, QA, tests, PR reviews |
+| **Gemini Advanced** | DevOps | Infraestructura Hetzner, Docker, GitHub Actions, analytics masiva |
+
+### Bridge de despliegue — con gate humano obligatorio
+
+```text
+Copilot sugiere cambio
+        │
+        ▼
+   PR en GitHub  ◄── GATE: merge manual por el dev
+        │
+        ▼
+  GitHub Actions  (workflow disparado por merge a main)
+        │
+        ├── Paso 1: run_audit.sh (QA: black/flake8/mypy/pytest)
+        ├── Paso 2: docker build + push a registry
+        └── Paso 3: SSH al CX33 → docker pull + restart
+              ▲
+        Gemini define y mantiene este workflow
+```
+
+> **Regla de oro del bridge:** Ningún deploy automático sin merge humano previo.
+> Copilot no pushea a producción. Gemini no toca el código.
+
+### Inventario correcto de máquinas
+
+| ID | Máquina | OS | Rol |
+|----|---------|-----|-----|
+| M1 | iMac | Linux (dev principal) | Desarrollo, CI local, VPN peer |
+| M2 | Asus (Linux side) | Ubuntu/WSL2 | Dev secundario, SQL Express local |
+| M3 | HP | Windows | Simulador cliente/directivo — solo .bat + dashboard |
+| S1 | Hetzner CX33 | Ubuntu 24.04 LTS | Producción — PostgreSQL, FastAPI, nginx |
+
+### Gestión de secretos (definición)
+
+| Secreto | Dónde vive | Cómo se usa |
+|---------|------------|-------------|
+| DB_PASSWORD | GitHub Secrets | Inyectado en GitHub Actions (nunca en código) |
+| JWT_SECRET_KEY | GitHub Secrets | Idem |
+| HETZNER_SSH_PRIVATE_KEY | GitHub Secrets | SSH deploy step en Actions |
+| WireGuard peer keys | `/etc/wireguard/` en S1 | Solo en servidor, nunca en repo |
+
+### Tareas ejecutables SIN servidor Hetzner (mientras se espera)
+
+```text
+T30. Crear repo Pose_API en GitHub + scaffold FastAPI local
+     └── main.py, routers/, schemas/, tests/ — estructura base
+     └── pytest local pasa sin BD (mocks)
+     └── Agregarlo al workspace EcoSauron cuando exista
+
+T31. Crear repo Pose_Frontend en GitHub + scaffold Next.js local
+     └── npx create-next-app --typescript
+     └── Estructura: components/, pages/, lib/api.ts
+     └── Agregarlo al workspace EcoSauron cuando exista
+
+T32. Diseñar GitHub Actions workflow (draft YAML, sin ejecutar)
+     └── .github/workflows/deploy.yml en Pose_API
+     └── Trigger: push a main
+     └── Jobs: qa → docker-build → deploy (SSH)
+     └── El job deploy queda comentado hasta que S1 exista
+
+T33. Avanzar migración PostgreSQL (PR #7 BD_POSE_B52)
+     └── Continuar sin servidor real — tests con pg local o mock
+     └── Scripts SQL compatibles con PG 16 listos para S1
+
+T34. Definir estructura Docker
+     └── Dockerfile para Pose_API (python:3.12-slim)
+     └── docker-compose.yml dev: api + postgres local
+     └── .dockerignore
+
+T35. Diseñar roles Gemini (prompt engineering)
+     └── Qué tareas delega el dev a Gemini en infraestructura
+     └── Protocolo de handoff Copilot → Gemini
+
+T36. Documentar WireGuard peer config para M1 y M2
+     └── Solo la config del lado cliente (sin IP del servidor aún)
+     └── Lista para copiar-pegar cuando S1 esté disponible
+```
 
 ---
 
