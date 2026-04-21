@@ -17,3 +17,9 @@ venv/
 
 # Pre-commit
 .pre-commit-cache/
+
+# Credenciales y entorno local (nunca al repo)
+.env
+*.env
+*credentials*
+*secret*

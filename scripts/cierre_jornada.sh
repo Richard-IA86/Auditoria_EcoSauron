@@ -128,13 +128,27 @@ while IFS= read -r linea || [[ -n "$linea" ]]; do
         "${rama_activa}@{upstream}" 2>/dev/null || true)
 
     if [[ -n "$upstream" ]]; then
+        # Fetch silencioso para comparar contra origin real
+        git fetch --quiet origin 2>/dev/null || true
+
         atras=$(git log --oneline "${upstream}".."${rama_activa}" \
             2>/dev/null | wc -l)
+        adelante=$(git log --oneline \
+            "${rama_activa}".."${upstream}" \
+            2>/dev/null | wc -l)
+
         if [[ "$atras" -gt 0 ]]; then
             warn "${atras} commit(s) sin push en '${rama_activa}'."
             pendientes=$(( pendientes + 1 ))
         else
             ok "Rama '${rama_activa}' sincronizada."
+        fi
+
+        if [[ "$adelante" -gt 0 ]]; then
+            err "DIVERGENCIA: origin tiene ${adelante} commit(s)" \
+                "que NO están en local."
+            err "Ejecutar 'git pull' antes de continuar."
+            pendientes=$(( pendientes + 1 ))
         fi
     else
         warn "Rama '${rama_activa}' sin upstream configurado."

@@ -7,17 +7,19 @@
 - **"Tenemos que salir de la rotonda."**
 
 ---
-# Principio Operativo: Arquitectura y Estructura — NO NEGOCIABLE
+
+## Principio Operativo: Arquitectura y Estructura — NO NEGOCIABLE
 
 > **"Prohibida la reestructuración sin evaluación QA."**
 
 - NO puedes agregar nuevas **carpetas** ni modificar la arquitectura base del repo.
 - Cualquier cambio estructural de carpetas requiere **aprobación explícita de QA**.
-- Si el usuario requiere un cambio de estructura de carpetas, debes advertirle por esta regla y pedir **confirmación explícita de QA**.
-- Si QA aprueba crear una carpeta, es **OBLIGATORIO** crear un archivo `.gitkeep` en su interior para asegurar su versionado en Git.
+- Si el usuario requiere un cambio de estructura de carpetas, debes advertirle
+  por esta regla y pedir **confirmación explícita de QA**.
+- Si QA aprueba crear una carpeta, es **OBLIGATORIO** crear un archivo `.gitkeep`
+  en su interior para asegurar su versionado en Git.
 
 ---
-
 
 ## Rol Asignado
 
@@ -46,6 +48,28 @@ del código en los repositorios externos.
 - **Formato PEP 8:** NUNCA modifiques ni generes código Python o comentarios que superen los 79 caracteres por línea.
 - Si te piden afectar un repositorio ajeno, generarás el script aquí
   (en `auditoria_ecosauron`) para que actúe sobre ellos remotamente de forma limpia.
+
+---
+
+## Protocolo de Sincronización — OBLIGATORIO ANTES DE EDITAR
+
+> **REGLA DE ORO:** Antes de modificar CUALQUIER archivo en un repo,
+> ejecutar `prefetch_check.sh` para verificar que origin no tiene
+> commits que el local desconoce.
+> Si detecta divergencia → `git pull` primero, LUEGO editar.
+> Ignorar esta regla puede causar sobreescritura silenciosa de trabajo
+> remoto o conflictos en el push de cierre.
+
+```bash
+# Verificar repo antes de editar (sin archivo específico)
+bash scripts/prefetch_check.sh <repo_path>
+
+# Verificar archivo específico antes de editarlo
+bash scripts/prefetch_check.sh <repo_path> <ruta_archivo>
+```
+
+- Salida `✔` = seguro editar.
+- Salida `✘ DIVERGENCIA` = hacer `git pull` primero, sin excepción.
 
 ---
 
