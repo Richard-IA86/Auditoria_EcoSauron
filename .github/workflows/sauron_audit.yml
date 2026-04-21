@@ -1,0 +1,81 @@
+name: Sauron — Revisión AI de PRs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  gemini-review:
+    name: Revisión Gemini Flash
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verificar API key disponible
+        id: check
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          if [[ -z "$GEMINI_API_KEY" ]]; then
+            echo "⏭️  Sin GEMINI_API_KEY — revisión omitida"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Obtener diff del PR
+        if: steps.check.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr diff "${{ github.event.pull_request.number }}" \
+            > /tmp/pr.diff
+          echo "Diff: $(wc -l < /tmp/pr.diff) líneas"
+
+      - name: Configurar Python
+        if: steps.check.outputs.skip == 'false'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Ejecutar revisor Gemini
+        if: steps.check.outputs.skip == 'false'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python scripts/ai_reviewer.py \
+            < /tmp/pr.diff \
+            > /tmp/sauron_review.json
+          echo "--- Resultado Sauron ---"
+          cat /tmp/sauron_review.json
+
+      - name: Publicar revisión en PR
+        if: steps.check.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          verdict=$(python3 -c "
+          import json
+          with open('/tmp/sauron_review.json') as f:
+              d = json.load(f)
+          print(d.get('verdict', 'REQUEST_CHANGES'))
+          ")
+          body=$(python3 -c "
+          import json
+          with open('/tmp/sauron_review.json') as f:
+              d = json.load(f)
+          print(d.get('body', 'Sin comentario.'))
+          ")
+          PR="${{ github.event.pull_request.number }}"
+          if [[ "$verdict" == "APPROVE" ]]; then
+            gh pr review "$PR" --approve --body "$body"
+          else
+            gh pr review "$PR" --request-changes --body "$body"
+          fi

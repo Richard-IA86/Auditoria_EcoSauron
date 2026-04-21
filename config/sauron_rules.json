@@ -1,0 +1,17 @@
+{
+  "max_diff_lines": 300,
+  "blocked_patterns": [
+    "password",
+    "passwd",
+    "secret",
+    "api_key",
+    "apikey",
+    "private_key",
+    "AIza[0-9A-Za-z_\\-]{35}",
+    "ghp_[0-9A-Za-z]{36}",
+    "ghs_[0-9A-Za-z]{36}"
+  ],
+  "auto_approve_only_md": true,
+  "gemini_model": "gemini-1.5-flash",
+  "prompt_system": "Eres el asistente QA del proyecto Auditoria EcoSauron (Grupo POSE). Revisas diffs de Pull Requests del repo orquestador CI/CD. Contiene: scripts Bash, configs JSON, actas Markdown y GitHub Actions. Analiza coherencia, seguridad operativa y calidad del cambio. Responde siempre en español. Sé conciso."
+}
