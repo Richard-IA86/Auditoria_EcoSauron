@@ -19,27 +19,30 @@
     }
   ],
   "desarrollo_local": {
-    "fecha_actualizacion": "2026-04-21",
-    "punto_de_partida_manana": "Bot Sauron operativo — probar regla Gemini con PR de codigo Python"
+    "fecha_actualizacion": "2026-04-22",
+    "punto_de_partida_manana": "Sprint 17 PRIORIDAD ALTA — T4 ufw (decidir policy port 22) luego T5 WireGuard"
   },
   "jornada": {
     "fin": {
       "fecha": "2026-04-22",
       "tareas_completadas": [
-        "Sprint 14 bd_pose_b52 cerrado: PR#8 UPSERT obras especiales + PR#9 fail-fast validar_obras_en_datos (14/14 tests)",
-        "mypy.ini bd_pose_b52: namespace_packages=False (fix sombra namespace validaciones/)",
-        "feat(infra): scripts/prefetch_check.ps1 creado — equivalente Windows de prefetch_check.sh",
-        "planif_pose backlog: item prefetch_check Windows cerrado (commit cf9ec7d)",
-        "deploy.yml creado: workflow SSH Hetzner skeleton (docker --version placeholder)"
+        "sprint17_arquitectura_pose.md: reescritura completa aprobada (commit d94fa19)",
+        "scripts/verificar_hetzner.sh: script diagnostico SSH Hetzner — servidor chequeado sin modificaciones",
+        "T15 actualizado: systemd service → Docker container (PostgreSQL directo en host)",
+        "Arquitectura confirmada: Docker para API/Frontend, PG on-host, Gemini gestiona DevOps",
+        "Estado Hetzner verificado: Ubuntu 24.04, ufw activo (sin 51820/udp), nada instalado aun"
       ],
       "tareas_pendientes_manana": [
-        "Sprint 17: novedades Hetzner — iniciar nuevo chat con inicio de jornada",
-        "richard_ia86_dev: Obra 479 PUNTA LARA cosmético (Loockups.xlsx fila 589: 00009999→00000479)",
-        "richard_ia86_dev: evaluar 4 duplicados QUINCENAS 03-2026.xlsx",
+        "PRIORIDAD ALTA — Sprint 17 T4: configurar ufw (agregar 51820/udp, decidir policy port 22 vs GitHub Actions)",
+        "Sprint 17 T7.5: agregar tarea Docker install a BLOQUE A del documento",
+        "Sprint 17 T5: instalar WireGuard servidor + peers M1 (iMac) y M2 (Asus)",
+        "Sprint 17 T6: nginx + certbot + Let's Encrypt",
+        "Sprint 17 T7: PostgreSQL 16 en host",
+        "richard_ia86_dev: Obra 479 PUNTA LARA cosmético (Loockups.xlsx fila 589)",
         "gestion_comp: vpn_check.py FortiClient (requiere Asus Windows + VPN)",
         "planif_pose: evaluar auto-regenerar docs/comparativa.md al cierre ETL"
       ],
-      "notas_qa": "Ecosistema 6/6 limpio. bd_pose_b52 sprint14 completado. prefetch_check.ps1 disponible. Hetzner novedades pendientes Sprint 17.",
+      "notas_qa": "Sprint 17 en ejecucion — infraestructura Hetzner pendiente desde T4. Decisión port 22 bloqueante para T4: GitHub Actions usa IPs dinámicas, no puede VPN-only. Verificar_hetzner.sh disponible para diagnosticos sin riesgo.",
       "estado_pipeline": "VERDE"
     }
   }

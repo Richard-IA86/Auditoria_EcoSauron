@@ -257,7 +257,9 @@ T11. Endpoints mock: /api/v1/costos /api/v1/despachos /api/v1/mensuales
 T12. Implementar JWT: /auth/login, token, rutas protegidas
 T13. Conectar FastAPI a PostgreSQL 16 vía psycopg2 + queries reales
 T14. Configurar nginx proxy_pass a FastAPI :8000
-T15. Desplegar Pose_API como servicio systemd en Hetzner
+T15. Desplegar Pose_API como contenedor Docker en Hetzner
+     └── Gemini define Dockerfile + docker-compose.yml + imagen en registry
+     └── PostgreSQL corre directo en host (sin contenedor — datos fuera de Docker)
 T16. Agregar Pose_API al pipeline EcoSauron (PASO 8)
 ```
 
