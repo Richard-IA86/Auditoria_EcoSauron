@@ -1,16 +1,16 @@
 # Sprint 17 — Nueva Arquitectura POSE
 
-> **Estado:** ACTIVO — iniciado 2026-04-20
+> **Estado:** ACTIVO — servidor Hetzner CX33 operativo
 > **Fecha de planificación:** 2026-04-13
 > **Fecha de inicio formal:** 2026-04-20
-> **Bloqueante externo:** Hetzner — cuenta en verificación (ticket enviado)
-> **Estrategia de espera:** Ejecutar T30–T36 (sin servidor) mientras se resuelve el bloqueo
+> **Punto de partida confirmado:** 2026-04-22
 
 ---
 
 ## 1. Por qué se hace este cambio
 
-El sistema actual (Streamlit local + `.bat`) tiene 5 problemas confirmados:
+El sistema actual (Streamlit local + `.bat` + Power Query) tiene
+5 problemas confirmados:
 
 | Problema | Impacto |
 |----------|---------|
@@ -18,9 +18,10 @@ El sistema actual (Streamlit local + `.bat`) tiene 5 problemas confirmados:
 | Director ejecuta un `.bat` para verlo | No es autónomo ni profesional |
 | Solo accesible en localhost | Sin acceso remoto |
 | Diseño no corporativo | Imagen ante la dirección |
-| No se puede compartir como link o PDF | Sin distribución |
+| No se puede compartir como link | Sin distribución |
 
-**Audiencia objetivo:** Director Financiero + equipo directivo (3–5 personas) + acceso remoto.
+**Audiencia objetivo:** Director Financiero + equipo directivo
+(3–5 personas) + acceso remoto vía browser.
 
 ---
 
@@ -29,17 +30,31 @@ El sistema actual (Streamlit local + `.bat`) tiene 5 problemas confirmados:
 ### Stack completo
 
 ```text
-ETL Python  →  PostgreSQL 16  →  FastAPI (JWT)  →  Next.js / React
-(sin cambios)  (en Linux)        (nuevo)            (nuevo)
-                    ↑
-              WireGuard VPN
-              (acceso admin)
-                     ↓
-         nginx + Let's Encrypt SSL
-                     ↓
-           Cloudflare DNS (proxy)
-                     ↓
-         https://[dominio].com.ar
+Fuentes Excel (crudos)
+      │
+      ▼
+ETL Python (richard_ia86_dev)   ← reemplaza planif_pose .pq + .bat
+      │
+      ▼
+PostgreSQL 16 (Hetzner CX33)    ← reemplaza SQL Express (Asus Windows)
+      │
+      ▼
+FastAPI + JWT                   ← nuevo
+      │
+      ▼
+Next.js / React                 ← nuevo
+      │
+nginx + Let's Encrypt SSL
+      │
+Cloudflare DNS (proxy)
+      │
+https://gestionpose.com.ar
+```
+
+### Acceso administrador
+
+```text
+iMac / Asus  →  WireGuard VPN  →  Puerto 22/5432 Hetzner
 ```
 
 ### Tabla de decisiones
@@ -49,15 +64,15 @@ ETL Python  →  PostgreSQL 16  →  FastAPI (JWT)  →  Next.js / React
 | Base de datos | PostgreSQL 16 en Linux | ✅ Cerrado |
 | Auth API | JWT propio — FastAPI + python-jose | ✅ Cerrado |
 | VPN | WireGuard nativo (kernel Linux) | ✅ Cerrado |
-| Dominio | `gestionpose.com.ar` — NIC Argentina | ✅ Cerrado |
-| DNS | Cloudflare Free — Full strict + proxy | ✅ Cuenta creada |
+| Dominio | `gestionpose.com.ar` — NIC Argentina | ✅ Registrado |
+| DNS | Cloudflare Free — Full strict + proxy | ✅ NS delegados |
 | SSL | Let's Encrypt + certbot | ✅ Cerrado |
-| Servidor | Hetzner CX33 — €6.99/mes | ⏳ Cuenta creada, en loop de verificación (ticket enviado, esperando) |
+| Servidor | Hetzner CX33 — €6.99/mes | ✅ Activo |
 | OS servidor | Ubuntu 24.04 LTS | ✅ Cerrado |
-| Frontend | Next.js + TypeScript (Copilot como escritor) | ✅ Cerrado |
+| Frontend | Next.js + TypeScript | ✅ Cerrado |
 | API | FastAPI + uvicorn | ✅ Cerrado |
-| Power BI Pro | Comprar licencia ($10 USD/usuario/mes) | ⏳ No bloquea Sprint 17 |
-| SSH Key | Ed25519 (`Richard.r.ia86@gmail.com`) | ✅ Generada para acceso remoto seguro |
+| SSH Key | Ed25519 (`Richard.r.ia86@gmail.com`) | ✅ Generada |
+| Power BI Pro | Licencia $10 USD/usuario/mes | ⏳ Post Sprint 17 |
 
 ---
 
@@ -70,31 +85,28 @@ ETL Python  →  PostgreSQL 16  →  FastAPI (JWT)  →  Next.js / React
 | Disco | 80 GB SSD |
 | Red | 20 TB/mes |
 | Costo | €6.99/mes |
-| OS recomendado | Ubuntu 24.04 LTS |
+| OS | Ubuntu 24.04 LTS |
 
 **¿Por qué CX33 y no CX23 (4 GB)?**
-PostgreSQL puede usar toda la RAM disponible para shared_buffers y caché.
-Con 8 GB el motor usa ~2 GB para shared_buffers + FastAPI + nginx + OS,
-dejando margen real de crecimiento sin restricciones de licencia.
-CX33 reemplaza al CX32 con las mismas specs a €0.53/mes menos
-(plan Cost-Optimized — hardware probado y confiable).
+Con 8 GB el motor usa ~2 GB para `shared_buffers` + FastAPI + nginx + OS,
+dejando margen real de crecimiento.
 
 ---
 
 ## 4. Seguridad — reglas de firewall
 
 ```text
-Puerto 443  TCP  → internet (nginx → Next.js + FastAPI)
-Puerto 51820 UDP → internet (WireGuard handshake)
-Puerto 22   TCP  → SOLO desde peers VPN
-Puerto 5432 TCP  → SOLO desde peers VPN
-Todo lo demás   → DROP
+Puerto 443   TCP  → internet (nginx → Next.js + FastAPI)
+Puerto 51820 UDP  → internet (WireGuard handshake)
+Puerto 22    TCP  → SOLO desde peers VPN
+Puerto 5432  TCP  → SOLO desde peers VPN
+Todo lo demás     → DROP
 ```
 
 Cloudflare con proxy activo ("nube naranja") oculta la IP real del servidor.
-Cualquier ataque directo al host queda bloqueado en el edge de Cloudflare.
 
-**Regla de oro:** PostgreSQL nunca expuesto a internet. Solo accesible por VPN.
+**Regla de oro:** PostgreSQL nunca expuesto a internet. Solo accesible
+por VPN.
 
 ---
 
@@ -105,47 +117,100 @@ Browser  →  Cloudflare (cert propio)  →  nginx (cert Let's Encrypt)
 ```
 
 Modo: **Full (strict)** — dos capas de encriptación.
-Resultado: candado verde en browser, IP del servidor oculta, protección DDoS incluida.
+Resultado: candado verde en browser, IP del servidor oculta,
+protección DDoS incluida.
 
 ---
 
-## 6. Commits de rollback — CONSERVAR
+## 6. Inventario de máquinas
 
-Si algo sale mal durante Sprint 17, estos son los puntos de retorno seguros:
+| ID | Máquina | OS | Rol |
+|----|---------|-----|-----|
+| M1 | iMac | Linux | Dev principal — El Ojo de Sauron (CI/CD) |
+| M2 | Asus | Linux (Ubuntu/WSL2) | Todos los repos + SQL Express local + VPN peer |
+| M3 | HP | Windows | Pruebas manuales — solo .bat + dashboard |
+| S1 | Hetzner CX33 | Ubuntu 24.04 LTS | Producción — PostgreSQL, FastAPI, nginx |
 
-| Repositorio | Hash rollback | Descripción |
-|-------------|---------------|-------------|
-| auditoria\_ecosauron | `52a17e4` | docs(qa): inicio jornada 2026-04-13 |
-| richard\_ia86\_dev | `9872c76` | ci: workflow\_dispatch manual |
-| bd\_pose\_b52 | `4fd5a54` | fix(qa): pyproject.toml + black fmt |
-| planif\_pose | `b0254cb` | ci: workflow\_dispatch manual |
-| data\_analytics | `14c7999` | ci: workflow\_dispatch manual |
-
-Comando de rollback: `git reset --hard <hash>`
-**Los datos en PostgreSQL son independientes del código — no se tocan en ningún caso.**
+**Regla:** El pipeline QA (`run_audit.sh`) corre exclusivamente en M1/M2.
+HP (M3) solo valida UX manual.
 
 ---
 
-## 7. ETL durante Sprint 17
+## 7. Bases de datos — contexto y estrategia de migración
 
-- **Estado:** PAUSADO
-- Los crudos nuevos que lleguen se depositan en `input_raw/` con nombre estandarizado
-- Formato sugerido: `FUENTE_YYYYMM_RECIBIDO.xlsx`
-  - Ej: `DESPACHOS_202602_RECIBIDO.xlsx`
-- **Primer acto post-Sprint 17:** procesar todos los acumulados en batch
+### Estado actual
+
+| BD | Servidor | Tipo | Estado |
+|----|----------|------|--------|
+| `BD_POSE_A2` | Servidor empresa | No incremental | ✅ Activa — reportes área financiera |
+| `DW_GrupoPOSE_B52` | Asus Windows (`RICHARD_ASUS\SQLEXPRESS`) | Incremental | ✅ En desarrollo |
+
+### Destino Sprint 17
+
+Ambas BDs migran a **PostgreSQL 16 en Hetzner CX33**.
+
+### Estrategia — "la palanca"
+
+```text
+FASE PARALELA (durante Sprint 17):
+  BD_POSE_A2 (empresa)     →  activa, reportes financieros siguen
+  DW_GrupoPOSE_B52 (Asus)  →  activa, ETL Python sigue cargando
+  PostgreSQL Hetzner        →  se construye y valida en paralelo
+
+FLIP (cuando PostgreSQL esté validado):
+  ETL Python apunta a PostgreSQL  ←  una línea de config
+  FastAPI lee desde PostgreSQL    ←  operativo
+  BD_POSE_A2 queda como respaldo  ←  NO se da de baja inmediatamente
+  SQL Express queda como respaldo ←  idem
+
+POST-SPRINT 17 (cuando haya confianza):
+  BD_POSE_A2  →  archivada (read-only)
+  SQL Express →  dado de baja
+```
+
+**Criterio de flip:** ETL Python carga correctamente en PostgreSQL y
+el dashboard muestra datos consistentes con los reportes de A2.
 
 ---
 
-## 8. Repos nuevos a crear
+## 8. ETL Python — reemplazo del pipeline .pq
+
+El ETL Python (`richard_ia86_dev/projects/report_direccion`) está
+reemplazando activamente el pipeline anterior:
+
+| Pipeline | Tecnología | Estado |
+|----------|-----------|--------|
+| **Anterior** | `planif_pose`: `.pq` (Power Query) + `menu_ejecucion.bat` | En uso |
+| **Nuevo** | `richard_ia86_dev`: Python puro (`clasificador_fuentes.py` + runners) | En construcción |
+
+Cuando el nuevo pipeline esté validado y cargando en PostgreSQL,
+el `.bat` / Power Query queda obsoleto.
+
+**Fuentes cubiertas por el nuevo ETL:**
+
+| Fuente | Runner | Staging |
+|--------|--------|---------|
+| DESPACHOS | `run_despachos.py` | `staging_despachos.csv` |
+| GG FDL | `run_fdl.py` | `staging_fdl.csv` |
+| FACTURACION FDL | `run_fdl.py` | `staging_fdl.csv` |
+| MENSUALES | `run_mensuales.py` | `staging_mensuales.csv` |
+| QUINCENAS | `run_quincenas.py` | `staging_quincenas.csv` |
+
+Arquitectura buzón único: `input_raw/` → `clasificador_fuentes.py`
+→ `run_todas_fuentes.py` → runners individuales.
+
+---
+
+## 9. Repos nuevos a crear
 
 | Repo | Nombre GitHub | Tecnología | Workspace |
 |------|--------------|------------|-----------|
-| API | `Richard-IA86/Pose_API` | Python — FastAPI | Agregado a EcoSauron PASO 8 |
-| Frontend | `Richard-IA86/Pose_Frontend` | TypeScript — Next.js | Agregado a EcoSauron PASO 7 |
+| API | `Richard-IA86/Pose_API` | Python — FastAPI | EcoSauron PASO 8 |
+| Frontend | `Richard-IA86/Pose_Frontend` | TypeScript — Next.js | EcoSauron PASO 7 |
 
 ---
 
-## 9. QA — integración en EcoSauron
+## 10. QA — integración en EcoSauron
 
 El pipeline `run_audit.sh` incorpora dos pasos nuevos:
 
@@ -158,38 +223,50 @@ Un solo `bash scripts/run_audit.sh` audita Python + TypeScript + React.
 
 ---
 
-## 10. Secuencia de ejecución Sprint 17
+## 11. Secuencia de ejecución Sprint 17
 
-### SEMANA 1 — Infraestructura base
+### BLOQUE A — Infraestructura base (parcialmente completado)
 
 ```text
-T1.  Elegir y registrar dominio .com.ar en NIC Argentina
-T2.  Crear cuenta Hetzner + contratar CX32 (Ubuntu 24.04)
-T3.  Crear cuenta Cloudflare + delegar NS de NIC AR a Cloudflare
+T1.  [✅] Registrar dominio gestionpose.com.ar en NIC Argentina
+T2.  [✅] Contratar Hetzner CX33 (Ubuntu 24.04) — ACTIVO
+T3.  [✅] Crear cuenta Cloudflare + delegar NS de NIC AR
 T4.  Configurar firewall ufw en servidor (reglas sección 4)
-T5.  Instalar WireGuard en servidor + agregar peer dev (iMac)
+T5.  Instalar WireGuard en servidor + agregar peer M1 (iMac) y M2 (Asus)
 T6.  Instalar nginx + certbot + certificado Let's Encrypt
-T7.  Instalar SQL Server 2022 Express para Linux
-T8.  Migrar BD: backup desde Asus Windows → restore en Hetzner
-T9.  Verificar ETL Python conecta a BD nueva vía pyodbc (por VPN)
+T7.  Instalar PostgreSQL 16 en servidor
 ```
 
-### SEMANA 2 — API
+### BLOQUE B — Migración de datos
+
+```text
+T8a. Migrar BD_POSE_A2 → PostgreSQL 16 (volcado + restore)
+T8b. Migrar DW_GrupoPOSE_B52 → PostgreSQL 16
+     └── Usar scripts SQL del PR #7 (bd_pose_b52/feature/postgresql-migration)
+T9.  Verificar ETL Python conecta a PostgreSQL vía psycopg2 (por VPN)
+     └── Prueba de carga batch con datos reales
+     └── Comparar resultados con BD_POSE_A2 — deben coincidir
+```
+
+### BLOQUE C — API
 
 ```text
 T10. Crear repo Pose_API — FastAPI + uvicorn + estructura base
+     └── main.py, routers/, schemas/, tests/ — scaffold inicial
 T11. Endpoints mock: /api/v1/costos /api/v1/despachos /api/v1/mensuales
 T12. Implementar JWT: /auth/login, token, rutas protegidas
-T13. Conectar FastAPI a MSSQL Linux (pyodbc + queries reales)
+T13. Conectar FastAPI a PostgreSQL 16 vía psycopg2 + queries reales
 T14. Configurar nginx proxy_pass a FastAPI :8000
-T15. Desplegar como servicio systemd en servidor
+T15. Desplegar Pose_API como servicio systemd en Hetzner
 T16. Agregar Pose_API al pipeline EcoSauron (PASO 8)
 ```
 
-### SEMANA 3 — Frontend
+### BLOQUE D — Frontend
 
 ```text
 T17. Crear repo Pose_Frontend — Next.js + TypeScript
+     └── npx create-next-app --typescript
+     └── Estructura: components/, pages/, lib/api.ts
 T18. Componentes con Copilot: Sidebar, BarChart, LineChart, DataTable
 T19. Páginas: /dashboard (costos), /despachos, /mensuales
 T20. Conectar fetch a FastAPI con JWT en headers
@@ -197,45 +274,36 @@ T21. Build: next build + nginx serve estático
 T22. Desplegar en Hetzner + verificar SSL + Cloudflare proxy
 ```
 
-### SEMANA 4 — QA, docs y transición
+### BLOQUE E — QA, palanca y cierre
 
 ```text
 T23. Tests Jest + React Testing Library (componentes críticos)
 T24. Playwright E2E: login → ver dashboard → filtrar período
 T25. Agregar Pose_Frontend al pipeline EcoSauron (PASO 7)
-T26. Procesar crudos acumulados con ETL existente (batch)
-T27. Acta de cierre Sprint 17
-T28. Docs arquitectura final + bitácora sprint
-T29. Automatizacion de maestros loockups
+T26. FLIP: ETL Python apunta a PostgreSQL Hetzner (cambio de config)
+     └── Validar datos coinciden con BD_POSE_A2
+     └── BD_POSE_A2 y SQL Express quedan como respaldo (read-only)
+T27. Procesar crudos acumulados en input_raw/ con ETL (batch)
+T28. Acta de cierre Sprint 17
+T29. Actualizar mapa_ecosistema.md + docs arquitectura final
+T30. Automatización de maestros lookups
 ```
 
 ---
 
-## 11. Pendientes antes de iniciar el chat de Sprint 17
+## 12. Gemini — Agente DevOps
 
-- [x] **Dominio:** nombre `.com.ar` registrado en NIC Argentina; delegación a NS Cloudflare completada.
-- [ ] **Hetzner:** resolver verificación de cuenta (en loop, correo enviado a soporte) para contratar CX33.
-- [ ] **T30–T36:** tareas ejecutables sin servidor — iniciadas 2026-04-20 (ver sección 13).
-- [x] **Cloudflare:** cuenta creada y nameservers asignados.
-- [x] **SSH:** Public key generada (`ssh-ed25519 ... Richard.r.ia86@gmail.com`) lista para inyectar en el servidor.
-- [ ] **Power BI Pro:** comprar cuando el frontend esté estable (no bloquea Sprint 17)
+> **Origen:** Propuesta `Propuesta_Ecosistema_Ojo_Sauron.md`
+> — aprobada 2026-04-20
 
----
-
-## 13. Ampliación Ecosistema — Gemini como Agente DevOps
-
-> **Origen:** Propuesta `Propuesta_Ecosistema_Ojo_Sauron.md` — aprobada 2026-04-20
-
-### Concepto central
-
-Dividir responsabilidades entre los dos agentes de IA del equipo:
+### División de responsabilidades
 
 | Agente | Rol | Foco |
 |--------|-----|------|
-| **GitHub Copilot** | Auditor + Escritor | Lógica de código, QA, tests, PR reviews |
-| **Gemini Advanced** | DevOps | Infraestructura Hetzner, Docker, GitHub Actions, analytics masiva |
+| **GitHub Copilot** | Auditor + Escritor | Código, QA, tests, PR reviews |
+| **Gemini Advanced** | DevOps | Infraestructura Hetzner, Docker, GitHub Actions |
 
-### Bridge de despliegue — con gate humano obligatorio
+### Bridge de despliegue — gate humano obligatorio
 
 ```text
 Copilot sugiere cambio
@@ -244,7 +312,7 @@ Copilot sugiere cambio
    PR en GitHub  ◄── GATE: merge manual por el dev
         │
         ▼
-  GitHub Actions  (workflow disparado por merge a main)
+  GitHub Actions  (disparado por merge a main)
         │
         ├── Paso 1: run_audit.sh (QA: black/flake8/mypy/pytest)
         ├── Paso 2: docker build + push a registry
@@ -253,73 +321,50 @@ Copilot sugiere cambio
         Gemini define y mantiene este workflow
 ```
 
-> **Regla de oro del bridge:** Ningún deploy automático sin merge humano previo.
+> **Regla de oro:** Ningún deploy automático sin merge humano previo.
 > Copilot no pushea a producción. Gemini no toca el código.
 
-### Inventario correcto de máquinas
-
-| ID | Máquina | OS | Rol |
-|----|---------|-----|-----|
-| M1 | iMac | Linux (dev principal) | Desarrollo, CI local, VPN peer |
-| M2 | Asus (Linux side) | Ubuntu/WSL2 | Dev secundario, SQL Express local |
-| M3 | HP | Windows | Simulador cliente/directivo — solo .bat + dashboard |
-| S1 | Hetzner CX33 | Ubuntu 24.04 LTS | Producción — PostgreSQL, FastAPI, nginx |
-
-### Gestión de secretos (definición)
+### Gestión de secretos
 
 | Secreto | Dónde vive | Cómo se usa |
 |---------|------------|-------------|
-| DB_PASSWORD | GitHub Secrets | Inyectado en GitHub Actions (nunca en código) |
-| JWT_SECRET_KEY | GitHub Secrets | Idem |
-| HETZNER_SSH_PRIVATE_KEY | GitHub Secrets | SSH deploy step en Actions |
-| WireGuard peer keys | `/etc/wireguard/` en S1 | Solo en servidor, nunca en repo |
-
-### Tareas ejecutables SIN servidor Hetzner (mientras se espera)
-
-```text
-T30. Crear repo Pose_API en GitHub + scaffold FastAPI local
-     └── main.py, routers/, schemas/, tests/ — estructura base
-     └── pytest local pasa sin BD (mocks)
-     └── Agregarlo al workspace EcoSauron cuando exista
-
-T31. Crear repo Pose_Frontend en GitHub + scaffold Next.js local
-     └── npx create-next-app --typescript
-     └── Estructura: components/, pages/, lib/api.ts
-     └── Agregarlo al workspace EcoSauron cuando exista
-
-T32. Diseñar GitHub Actions workflow (draft YAML, sin ejecutar)
-     └── .github/workflows/deploy.yml en Pose_API
-     └── Trigger: push a main
-     └── Jobs: qa → docker-build → deploy (SSH)
-     └── El job deploy queda comentado hasta que S1 exista
-
-T33. Avanzar migración PostgreSQL (PR #7 BD_POSE_B52)
-     └── Continuar sin servidor real — tests con pg local o mock
-     └── Scripts SQL compatibles con PG 16 listos para S1
-
-T34. Definir estructura Docker
-     └── Dockerfile para Pose_API (python:3.12-slim)
-     └── docker-compose.yml dev: api + postgres local
-     └── .dockerignore
-
-T35. Diseñar roles Gemini (prompt engineering)
-     └── Qué tareas delega el dev a Gemini en infraestructura
-     └── Protocolo de handoff Copilot → Gemini
-
-T36. Documentar WireGuard peer config para M1 y M2
-     └── Solo la config del lado cliente (sin IP del servidor aún)
-     └── Lista para copiar-pegar cuando S1 esté disponible
-```
+| `DB_PASSWORD` | GitHub Secrets | Inyectado en GitHub Actions |
+| `JWT_SECRET_KEY` | GitHub Secrets | Idem |
+| `HETZNER_SSH_PRIVATE_KEY` | GitHub Secrets | SSH deploy step |
+| WireGuard peer keys | `/etc/wireguard/` en S1 | Solo en servidor |
 
 ---
 
-## 12. Contexto del sistema actual — referencia
+## 13. Commits de rollback — CONSERVAR
+
+Si algo sale mal, estos son los puntos de retorno seguros:
+
+| Repositorio | Hash | Descripción |
+|-------------|------|-------------|
+| `auditoria_ecosauron` | `52a17e4` | docs(qa): inicio jornada 2026-04-13 |
+| `richard_ia86_dev` | `9872c76` | ci: workflow\_dispatch manual |
+| `bd_pose_b52` | `4fd5a54` | fix(qa): pyproject.toml + black fmt |
+| `planif_pose` | `b0254cb` | ci: workflow\_dispatch manual |
+| `data_analytics` | `14c7999` | ci: workflow\_dispatch manual |
+
+Comando: `git reset --hard <hash>`
+
+**Los datos en PostgreSQL son independientes del código.
+No se tocan en ningún caso de rollback.**
+
+---
+
+## 14. Contexto del sistema al inicio del sprint
 
 | Ítem | Valor |
 |------|-------|
-| ETL | `richard_ia86_dev/projects/report_direccion/` |
-| Fuentes | DESPACHOS / MENSUALES / GG FDL / FACTURACION FDL |
-| BD actual | SQL Server Express en Asus Windows (`RICHARD_ASUS\SQLEXPRESS`) |
-| Tests actuales | 231 passed / 1 skipped |
-| QA pipeline | EcoSauron `run_audit.sh` — 5/5 APROBADO |
+| ETL activo | `richard_ia86_dev/projects/report_direccion/` |
+| Fuentes cubiertas | DESPACHOS / MENSUALES / GG FDL / FAC FDL / QUINCENAS |
+| BD actual (empresa) | `BD_POSE_A2` — servidor empresa — activa |
+| BD actual (dev) | `DW_GrupoPOSE_B52` — SQL Express Asus — activa |
+| BD destino | PostgreSQL 16 — Hetzner CX33 |
+| Tests ecosistema | ~346 passed / 1 skipped |
+| QA pipeline | EcoSauron `run_audit.sh` — 6/6 APROBADO |
 | Último commit orquestador | `52a17e4` |
+| Repos nuevos a crear | `Pose_API`, `Pose_Frontend` |
+| ETL pipeline a reemplazar | `planif_pose/scripts/menu_ejecucion.bat` (.pq) |
