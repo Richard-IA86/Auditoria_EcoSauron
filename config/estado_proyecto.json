@@ -24,21 +24,22 @@
   },
   "jornada": {
     "fin": {
-      "fecha": "2026-04-21",
+      "fecha": "2026-04-22",
       "tareas_completadas": [
-        "gh CLI instalado y autenticado (Richard-IA86)",
-        "Permiso can_approve_pull_request_reviews habilitado en Auditoria_EcoSauron",
-        "PR #5 creado y auto-aprobado por github-actions[bot] (regla only_md)",
-        "PR #4 aprobado manualmente (prefetch_check.sh — antes del bot)",
-        "Rama test/gemini-reviewer mantenida como evidencia historica",
-        "Orquestador devuelto a main — 0 ahead / 0 behind"
+        "Sprint 14 bd_pose_b52 cerrado: PR#8 UPSERT obras especiales + PR#9 fail-fast validar_obras_en_datos (14/14 tests)",
+        "mypy.ini bd_pose_b52: namespace_packages=False (fix sombra namespace validaciones/)",
+        "feat(infra): scripts/prefetch_check.ps1 creado — equivalente Windows de prefetch_check.sh",
+        "planif_pose backlog: item prefetch_check Windows cerrado (commit cf9ec7d)",
+        "deploy.yml creado: workflow SSH Hetzner skeleton (docker --version placeholder)"
       ],
       "tareas_pendientes_manana": [
-        "Probar regla Gemini con PR que modifique codigo Python (>0 lineas, <300)",
-        "Evaluar si agregar regla para scripts Bash (.sh)",
-        "Revisar PR #7 BD_POSE_B52 (WIP: migracion PostgreSQL 16)"
+        "Sprint 17: novedades Hetzner — iniciar nuevo chat con inicio de jornada",
+        "richard_ia86_dev: Obra 479 PUNTA LARA cosmético (Loockups.xlsx fila 589: 00009999→00000479)",
+        "richard_ia86_dev: evaluar 4 duplicados QUINCENAS 03-2026.xlsx",
+        "gestion_comp: vpn_check.py FortiClient (requiere Asus Windows + VPN)",
+        "planif_pose: evaluar auto-regenerar docs/comparativa.md al cierre ETL"
       ],
-      "notas_qa": "Bot Sauron validado end-to-end. Notificacion email recibida. 6 repos limpios.",
+      "notas_qa": "Ecosistema 6/6 limpio. bd_pose_b52 sprint14 completado. prefetch_check.ps1 disponible. Hetzner novedades pendientes Sprint 17.",
       "estado_pipeline": "VERDE"
     }
   }
