@@ -19,30 +19,28 @@
     }
   ],
   "desarrollo_local": {
-    "fecha_actualizacion": "2026-04-22",
-    "punto_de_partida_manana": "Sprint 17 PRIORIDAD ALTA — T4 ufw (decidir policy port 22) luego T5 WireGuard"
+    "fecha_actualizacion": "2026-04-23",
+    "punto_de_partida_manana": "Esperar que Gemini termine setup servidor — abrir nuevo chat para continuar Sprint 17"
   },
   "jornada": {
     "fin": {
-      "fecha": "2026-04-22",
+      "fecha": "2026-04-23",
       "tareas_completadas": [
-        "sprint17_arquitectura_pose.md: reescritura completa aprobada (commit d94fa19)",
-        "scripts/verificar_hetzner.sh: script diagnostico SSH Hetzner — servidor chequeado sin modificaciones",
-        "T15 actualizado: systemd service → Docker container (PostgreSQL directo en host)",
-        "Arquitectura confirmada: Docker para API/Frontend, PG on-host, Gemini gestiona DevOps",
-        "Estado Hetzner verificado: Ubuntu 24.04, ufw activo (sin 51820/udp), nada instalado aun"
+        "Diagnostico SSH: dominio gestionpose.com.ar bloqueado por proxy Cloudflare (IPs 172.67/104.21)",
+        "Conexion exitosa al CX33 por IP directa 178.104.226.136 — servidor Ubuntu 24.04 limpio verificado",
+        "Scaffold Pose_API: 23/23 tests, black+flake8 ok, push a GitHub (commit 42070ff) — sesion anterior",
+        "T15 GitHub Actions workflow deploy.yml pusheado (commit 54c225e) — sesion anterior",
+        "Prompts Gemini generados en docs/ para setup completo del servidor — Gemini ejecuta en servidor"
       ],
       "tareas_pendientes_manana": [
-        "PRIORIDAD ALTA — Sprint 17 T4: configurar ufw (agregar 51820/udp, decidir policy port 22 vs GitHub Actions)",
-        "Sprint 17 T7.5: agregar tarea Docker install a BLOQUE A del documento",
-        "Sprint 17 T5: instalar WireGuard servidor + peers M1 (iMac) y M2 (Asus)",
-        "Sprint 17 T6: nginx + certbot + Let's Encrypt",
-        "Sprint 17 T7: PostgreSQL 16 en host",
-        "richard_ia86_dev: Obra 479 PUNTA LARA cosmético (Loockups.xlsx fila 589)",
-        "gestion_comp: vpn_check.py FortiClient (requiere Asus Windows + VPN)",
-        "planif_pose: evaluar auto-regenerar docs/comparativa.md al cierre ETL"
+        "Verificar que Gemini completo el setup del servidor (PostgreSQL, Docker, nginx, WireGuard)",
+        "T9b: sync_usuarios_gerentes.py — lee catalogos.obras_gerencias → INSERT auth.usuarios ON CONFLICT",
+        "M2b: .bat launcher Windows para ETL sin CLI Python",
+        "T13: implementar database.py real (psycopg2 pool de conexiones)",
+        "GitHub Secrets: cargar HETZNER_HOST, HETZNER_SSH_KEY, DATABASE_URL, SECRET_KEY, GHCR_TOKEN",
+        "Environment production en GitHub Settings → Environments"
       ],
-      "notas_qa": "Sprint 17 en ejecucion — infraestructura Hetzner pendiente desde T4. Decisión port 22 bloqueante para T4: GitHub Actions usa IPs dinámicas, no puede VPN-only. Verificar_hetzner.sh disponible para diagnosticos sin riesgo.",
+      "notas_qa": "SSH via dominio bloqueado por Cloudflare (siempre usar IP directa 178.104.226.136). Gemini gestiona DevOps del servidor. Copilot genera codigo local. Abrir nuevo chat al retomar.",
       "estado_pipeline": "VERDE"
     }
   }
