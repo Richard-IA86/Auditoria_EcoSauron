@@ -92,6 +92,7 @@ GitHub Actions    →  SSH directo IPs GitHub  →  Puerto 22  (CI/CD deploy)
 | Roles | director_financiero / gerente_obra / admin_rd | ✅ Cerrado (2026-04-23) |
 | Alta usuarios | Script sync desde maestro Obras_Gerencias (admin_rd) | ✅ Cerrado (2026-04-23) |
 | Loockups → BD | 5 hojas migran a catalogos.*; 2 catálogos editables quedan Excel | ✅ Cerrado (2026-04-23) |
+| Continuidad ETL | Setup espejo en equipo RD backup — sin dependencia de admin_rd | ✅ Cerrado (2026-04-23) |
 | Power BI Pro | Licencia $10 USD/usuario/mes | ⏳ Post Sprint 17 |
 
 ---
@@ -154,6 +155,7 @@ protección DDoS incluida.
 |----|---------|-----|-----|
 | M1 | iMac | **Linux nativo** | El Ojo de Sauron — QA, CI/CD, `run_audit.sh` |
 | M2 | Asus | **Windows + WSL2** | Dev + ETL (Python Windows) + acceso `\\10.2.1.62` + VPN peer Hetzner |
+| M2b | Equipo RD (backup) | Windows | **Setup espejo de M2** — ejecuta ETL en ausencia de admin_rd |
 | RD×5 | Equipo RD | Windows | Producen los Excel fuente en `\\10.2.1.62` — sin acceso web directo |
 | S1 | Hetzner CX33 | Ubuntu 24.04 LTS | Producción — PostgreSQL, FastAPI, nginx |
 | ~~M3~~ | ~~HP~~ | ~~Windows~~ | ~~Dado de baja 2026-04-13~~ |
@@ -162,8 +164,24 @@ protección DDoS incluida.
 
 - Pipeline QA (`run_audit.sh`) corre exclusivamente en M1 (iMac Linux).
 - ETL Python corre en M2 Asus **Windows** — acceso nativo a `\\10.2.1.62`.
+- M2b (equipo backup) puede ejecutar ETL con el mismo setup — operador designado del equipo RD.
 - WSL2 del Asus: desarrollo y tests locales únicamente, NO ejecuta el ETL.
 - HP dado de baja — sin rol activo en el ecosistema.
+
+**Setup requerido en M2b (equipo backup):**
+
+```text
+1. Python 3.x + venv con requirements.txt de richard_ia86_dev
+2. Clon del repo richard_ia86_dev (git clone)
+3. config/conexion.json apuntando a PostgreSQL Hetzner
+4. WireGuard peer configurado (clave nueva → agregar en T5 del servidor)
+5. VPN empresa activa (acceso a \\10.2.1.62)
+6. .bat launcher equivalente al de M2 para disparo manual
+```
+
+> El repo `richard_ia86_dev` es la fuente de verdad del ETL.
+> M2b solo necesita `git pull` para estar al día con cualquier cambio.
+> Sin acceso SSH al servidor — solo ejecuta ETL vía WireGuard :5432.
 
 ---
 
@@ -234,6 +252,11 @@ Arquitectura buzón único: `input_raw/` → `clasificador_fuentes.py`
 El ETL corre en Asus Windows con VPN empresa activa.
 Accede a `\\10.2.1.62` vía UNC nativo (sin WSL2, sin montaje /mnt/).
 Disparo manual por admin_rd (hasta 4×/día). ProntoNet: cron nocturno.
+
+**Continuidad operacional — M2b (backup):**
+Un integrante designado del equipo RD tiene setup espejo (ver §6).
+En ausencia de admin_rd puede ejecutar el ETL sin dependencia de Asus.
+El proceso no tiene un único punto de falla humano.
 
 ---
 
@@ -419,7 +442,10 @@ T1.  [✅] Registrar dominio gestionpose.com.ar en NIC Argentina
 T2.  [✅] Contratar Hetzner CX33 (Ubuntu 24.04) — ACTIVO
 T3.  [✅] Crear cuenta Cloudflare + delegar NS de NIC AR
 T4.  [✅] Configurar firewall ufw en servidor (reglas sección 4)
-T5.  Instalar WireGuard en servidor + agregar peer M1 (iMac) y M2 (Asus)
+T5.  Instalar WireGuard en servidor + agregar peers:
+     ├── M1 iMac (admin SSH)
+     ├── M2 Asus Windows (ETL + admin SSH)
+     └── M2b equipo RD backup (ETL :5432 — sin acceso SSH al servidor)
 T6.  Instalar nginx + certbot + certificado Let's Encrypt
 T7.  Instalar PostgreSQL 16 en servidor
 T7b. Instalar Docker en servidor (prerequisito para T15)
