@@ -30,31 +30,39 @@ El sistema actual (Streamlit local + `.bat` + Power Query) tiene
 ### Stack completo
 
 ```text
-Fuentes Excel (crudos)
+\\10.2.1.62\costos y compensaciones\    ← equipo RD (5 personas Windows)
+\\10.2.1.62\Construyo Al Costo\...      ← idem
+ProntoNet (web)                          ← cron nocturno (gestion_comp)
       │
+      │  VPN empresa (Asus Windows)
       ▼
-ETL Python (richard_ia86_dev)   ← reemplaza planif_pose .pq + .bat
-      │
+ETL Python — Asus Windows               ← Python Windows, UNC directo
+(richard_ia86_dev — disparo manual, hasta 4×/día)
+      │  pg_dump snapshot antes de cada carga
+      │  WireGuard VPN (Asus → Hetzner :5432)
       ▼
-PostgreSQL 16 (Hetzner CX33)    ← reemplaza SQL Express (Asus Windows)
-      │
+PostgreSQL 16 (Hetzner CX33 — host)    ← reemplaza SQL Express
+      │  tabla etl_log (timestamp, usuario, resultado)
       ▼
-FastAPI + JWT                   ← nuevo
+FastAPI + JWT (Docker)                  ← nuevo
       │
-      ▼
-Next.js / React                 ← nuevo
-      │
-nginx + Let's Encrypt SSL
-      │
-Cloudflare DNS (proxy)
+nginx + Let's Encrypt + Cloudflare proxy
       │
 https://gestionpose.com.ar
+      │
+      ├── Director Financiero  → /dashboard  (todos los datos)
+      │                          indicador "Datos al DD/MM/AAAA HH:MM"
+      └── Gerentes de obra     → /gerencia/{slug} (filtrado por obra)
+                                  [⬇ Descargar Informe .xlsx]
+                                  [⬇ Descargar Datos crudos .xlsx]
 ```
 
-### Acceso administrador
+### Acceso administrador / ETL
 
 ```text
-iMac / Asus  →  WireGuard VPN  →  Puerto 22/5432 Hetzner
+iMac (Linux)      →  WireGuard VPN  →  Puerto 22 Hetzner  (admin SSH)
+Asus (Windows)    →  WireGuard VPN  →  Puerto 5432 Hetzner (ETL psycopg2)
+GitHub Actions    →  SSH directo IPs GitHub  →  Puerto 22  (CI/CD deploy)
 ```
 
 ### Tabla de decisiones
@@ -72,6 +80,18 @@ iMac / Asus  →  WireGuard VPN  →  Puerto 22/5432 Hetzner
 | Frontend | Next.js + TypeScript | ✅ Cerrado |
 | API | FastAPI + uvicorn | ✅ Cerrado |
 | SSH Key | Ed25519 (`Richard.r.ia86@gmail.com`) | ✅ Generada |
+| Docker deploy | FastAPI corre en Docker desde el arranque | ✅ Cerrado (2026-04-23) |
+| Container Registry | ghcr.io — `GITHUB_TOKEN`, sin rate limiting | ✅ Cerrado (2026-04-23) |
+| SSH deploy Actions | Directo + allowlist IPs GitHub + WireGuard admin | ✅ Cerrado (2026-04-23) |
+| ETL ejecución | Python Windows — Asus (UNC directo `\\10.2.1.62`) | ✅ Cerrado (2026-04-23) |
+| Dashboard tiempo real | Datos frescos por query, sin cron web | ✅ Cerrado (2026-04-23) |
+| Indicador carga | "Datos al DD/MM/AAAA HH:MM" — timestamp última ETL | ✅ Cerrado (2026-04-23) |
+| Reportes descargables | Excel formateado + datos crudos (xlsxwriter) | ✅ Cerrado (2026-04-23) |
+| Backup ETL | 5 snapshots pg_dump + rsync disco externo cron 02:00 | ✅ Cerrado (2026-04-23) |
+| Rollback | pg_restore automático si ETL falla a mitad de carga | ✅ Cerrado (2026-04-23) |
+| Roles | director_financiero / gerente_obra / admin_rd | ✅ Cerrado (2026-04-23) |
+| Alta usuarios | Script sync desde maestro Obras_Gerencias (admin_rd) | ✅ Cerrado (2026-04-23) |
+| Loockups → BD | 5 hojas migran a catalogos.*; 2 catálogos editables quedan Excel | ✅ Cerrado (2026-04-23) |
 | Power BI Pro | Licencia $10 USD/usuario/mes | ⏳ Post Sprint 17 |
 
 ---
@@ -98,12 +118,18 @@ dejando margen real de crecimiento.
 ```text
 Puerto 443   TCP  → internet (nginx → Next.js + FastAPI)
 Puerto 51820 UDP  → internet (WireGuard handshake)
-Puerto 22    TCP  → SOLO desde peers VPN
-Puerto 5432  TCP  → SOLO desde peers VPN
+Puerto 22    TCP  → rangos IP GitHub Actions  (deploy automático CI/CD)
+Puerto 22    TCP  → peers WireGuard           (acceso admin)
+Puerto 22    TCP  → todo lo demás             DROP
+Puerto 5432  TCP  → SOLO peers WireGuard
 Todo lo demás     → DROP
 ```
 
 Cloudflare con proxy activo ("nube naranja") oculta la IP real del servidor.
+
+**IPs de GitHub Actions:** GitHub las publica en `https://api.github.com/meta`
+(campo `actions`). El workflow de Gemini incorpora la Action oficial que
+actualiza estas reglas automáticamente cuando GitHub cambia sus rangos.
 
 **Regla de oro:** PostgreSQL nunca expuesto a internet. Solo accesible
 por VPN.
@@ -126,13 +152,18 @@ protección DDoS incluida.
 
 | ID | Máquina | OS | Rol |
 |----|---------|-----|-----|
-| M1 | iMac | Linux | Dev principal — El Ojo de Sauron (CI/CD) |
-| M2 | Asus | Linux (Ubuntu/WSL2) | Todos los repos + SQL Express local + VPN peer |
-| M3 | HP | Windows | Pruebas manuales — solo .bat + dashboard |
+| M1 | iMac | **Linux nativo** | El Ojo de Sauron — QA, CI/CD, `run_audit.sh` |
+| M2 | Asus | **Windows + WSL2** | Dev + ETL (Python Windows) + acceso `\\10.2.1.62` + VPN peer Hetzner |
+| RD×5 | Equipo RD | Windows | Producen los Excel fuente en `\\10.2.1.62` — sin acceso web directo |
 | S1 | Hetzner CX33 | Ubuntu 24.04 LTS | Producción — PostgreSQL, FastAPI, nginx |
+| ~~M3~~ | ~~HP~~ | ~~Windows~~ | ~~Dado de baja 2026-04-13~~ |
 
-**Regla:** El pipeline QA (`run_audit.sh`) corre exclusivamente en M1/M2.
-HP (M3) solo valida UX manual.
+**Reglas de ejecución:**
+
+- Pipeline QA (`run_audit.sh`) corre exclusivamente en M1 (iMac Linux).
+- ETL Python corre en M2 Asus **Windows** — acceso nativo a `\\10.2.1.62`.
+- WSL2 del Asus: desarrollo y tests locales únicamente, NO ejecuta el ETL.
+- HP dado de baja — sin rol activo en el ecosistema.
 
 ---
 
@@ -199,6 +230,162 @@ el `.bat` / Power Query queda obsoleto.
 Arquitectura buzón único: `input_raw/` → `clasificador_fuentes.py`
 → `run_todas_fuentes.py` → runners individuales.
 
+**Nota de ejecución — Vía B (Python Windows):**
+El ETL corre en Asus Windows con VPN empresa activa.
+Accede a `\\10.2.1.62` vía UNC nativo (sin WSL2, sin montaje /mnt/).
+Disparo manual por admin_rd (hasta 4×/día). ProntoNet: cron nocturno.
+
+---
+
+## 8b. Flujo completo de datos
+
+### Ingesta (ETL manual — disparado por admin_rd)
+
+```text
+\\10.2.1.62\costos y compensaciones\  ← equipo RD mantiene estos Excel
+\\10.2.1.62\Construyo Al Costo\...    ← idem
+ProntoNet (web)                        ← gestion_comp descarga vía scraper
+      │
+      │  UNC directo (Asus Windows, VPN empresa activa)
+      ▼
+ETL Python — Asus Windows
+  1. Verificar \\10.2.1.62 accesible
+  2. pg_dump → /backups/snapshots/snapshot_YYYYMMDD_HHMM.dump
+  3. Clasificar + transformar fuentes (clasificador_fuentes.py)
+  4. INSERT / UPSERT en PostgreSQL (por VPN WireGuard)
+  5a. OK   → UPDATE etl_log: éxito + timestamp
+  5b. FAIL → pg_restore automático + etl_log: fallo + rollback
+```
+
+### Consulta (tiempo real — usuarios web)
+
+```text
+Browser  →  https://gestionpose.com.ar
+      ▼
+Cloudflare → nginx → FastAPI (Docker)
+  │  valida JWT
+  │  filtra por rol:
+  │    director_financiero → todas las obras/gerencias
+  │    gerente_obra        → solo obras_habilitadas[]
+  │    admin_rd            → todo + disparar ETL + ver logs
+      ▼
+PostgreSQL 16
+      ▼
+JSON → Next.js renderiza dashboard
+  │  Indicador: "Datos al 23/04/2026 14:32"
+  └── Botones de descarga por gerencia:
+        [⬇ Informe .xlsx formateado]  [⬇ Datos crudos .xlsx]
+```
+
+---
+
+## 8c. Loockups.xlsx — clasificación de hojas
+
+El archivo `Loockups.xlsx` es la fuente de configuración central del ETL.
+Sus hojas se dividen en dos categorías según su naturaleza:
+
+### Tablas de BD — migran a PostgreSQL
+
+Datos estables o históricos que el ETL solo lee. Se cargan una vez
+desde el Excel y luego se mantienen en la BD:
+
+| Hoja | Uso en ETL | Tabla destino |
+|------|-----------|---------------|
+| `Obras_Gerencias` | Mapeo obra → gerencia + alta de usuarios | `catalogos.obras_gerencias` |
+| `TipoCambio` | Conversión moneda histórica | `catalogos.tipo_cambio` |
+| `GerenciEquivalente` | Nombres equivalentes entre sistemas | `catalogos.gerencia_equiv` |
+| `Equivalencias_DescObras` | Normalización nombres de obras | `catalogos.equiv_desc_obras` |
+| `GG_FDL_CentroCosto` | Mapeo centro de costo → obra | `catalogos.gg_fdl_cc` |
+
+### Catálogos editables — quedan en Excel (o panel admin futuro)
+
+Parámetros de comportamiento que el equipo RD actualiza según
+necesidades operativas del ETL:
+
+| Hoja | Uso | Quién edita |
+|------|-----|-------------|
+| `Excepciones_Gerencia` | Casos especiales de asignación gerencia | Equipo RD |
+| `Config_Fuentes` | Activa/desactiva fuentes del ETL (ACTIVO=SI/NO) | Admin RD |
+
+> **Nota:** cuando el panel admin web esté disponible (post Sprint 17),
+> los catálogos editables migran a tablas con UI de edición.
+> El Excel queda como respaldo de importación.
+
+---
+
+## 8d. Roles y modelo de acceso
+
+### Roles definidos
+
+| Rol | Acceso | Quién |
+|-----|--------|-------|
+| `director_financiero` | Dashboard completo — todas las obras/gerencias | Director Financiero |
+| `gerente_obra` | Solo obras en `obras_habilitadas[]` | Gerentes de obra |
+| `admin_rd` | Dashboard completo + disparar ETL + ver logs | Equipo RD |
+
+### Alta de usuarios — flujo desde Obras_Gerencias
+
+```text
+Maestro Obras_Gerencias (Loockups.xlsx → catalogos.obras_gerencias)
+      │  gerencias únicas detectadas automáticamente
+      ▼
+Script: sync_usuarios_gerentes.py  (admin_rd lo ejecuta manualmente)
+      │  INSERT INTO usuarios (username, rol, obras_habilitadas)
+      │  ON CONFLICT DO UPDATE (idempotente — re-ejecutable)
+      ▼
+PostgreSQL tabla: usuarios
+```
+
+No hay autoregistro. Control total del acceso desde el maestro.
+
+### Sesión web
+
+```text
+1. POST /api/v1/auth/login → FastAPI emite JWT (httpOnly cookie)
+2. Cada request: Authorization: Bearer <token>
+3. FastAPI valida rol → filtra datos por obras_habilitadas[]
+4. Next.js renderiza según rol:
+     director → ve todo
+     gerente  → ve solo su filtro + botones descarga
+     admin_rd → ve todo + panel ETL (disparar, ver logs)
+```
+
+---
+
+## 8e. Backup policy
+
+### Snapshot pre-carga (automático en cada ETL run)
+
+```text
+Antes de cada INSERT al ETL:
+  pg_dump -Fc → /backups/snapshots/snapshot_YYYYMMDD_HHMM.dump
+  Retener: últimos 5 snapshots (rotación automática)
+
+Si carga OK:   etl_log "éxito", snapshot anterior rotado
+Si carga FAIL: pg_restore automático del snapshot previo
+               etl_log "fallo + rollback" + notificación admin_rd
+```
+
+### Backup diario — disco externo (cron 02:00)
+
+```text
+Cron en Asus Windows (Task Scheduler 02:00):
+  1. WireGuard conectar (si no está activo)
+  2. pg_dump -Fc Hetzner → backup_YYYYMMDD.dump.gz
+  3. rsync → /media/disco_externo/pose_backups/
+  4. Retener: últimos 30 días en disco externo
+  5. WireGuard desconectar
+```
+
+### Matriz de riesgos cubiertos
+
+| Riesgo | Cobertura |
+|--------|-----------|
+| ETL falla a mitad de carga | Rollback automático al snapshot previo |
+| Director necesita datos de antes del fallo | Snapshot disponible inmediatamente |
+| Falla catastrófica Hetzner | Disco externo (último backup diario, máx 24h) |
+| Error en migración de datos | Snapshot pre-sprint17 conservado sin rotación |
+
 ---
 
 ## 9. Repos nuevos a crear
@@ -231,21 +418,28 @@ Un solo `bash scripts/run_audit.sh` audita Python + TypeScript + React.
 T1.  [✅] Registrar dominio gestionpose.com.ar en NIC Argentina
 T2.  [✅] Contratar Hetzner CX33 (Ubuntu 24.04) — ACTIVO
 T3.  [✅] Crear cuenta Cloudflare + delegar NS de NIC AR
-T4.  Configurar firewall ufw en servidor (reglas sección 4)
+T4.  [✅] Configurar firewall ufw en servidor (reglas sección 4)
 T5.  Instalar WireGuard en servidor + agregar peer M1 (iMac) y M2 (Asus)
 T6.  Instalar nginx + certbot + certificado Let's Encrypt
 T7.  Instalar PostgreSQL 16 en servidor
+T7b. Instalar Docker en servidor (prerequisito para T15)
 ```
 
 ### BLOQUE B — Migración de datos
 
 ```text
-T8a. Migrar BD_POSE_A2 → PostgreSQL 16 (volcado + restore)
-T8b. Migrar DW_GrupoPOSE_B52 → PostgreSQL 16
+T8a. Snapshot inicial antes de la migración
+     └── pg_dump → /backups/snapshots/snapshot_pre_sprint17.dump (sin rotación)
+T8b. Migrar BD_POSE_A2 → PostgreSQL 16 (volcado + restore)
+T8c. Migrar DW_GrupoPOSE_B52 → PostgreSQL 16
      └── Usar scripts SQL del PR #7 (bd_pose_b52/feature/postgresql-migration)
-T9.  Verificar ETL Python conecta a PostgreSQL vía psycopg2 (por VPN)
-     └── Prueba de carga batch con datos reales
+T9.  Verificar ETL Python Windows conecta a PostgreSQL vía psycopg2
+     └── WireGuard activo + psycopg2 desde Asus Windows
+     └── Prueba de carga batch con datos reales desde \\10.2.1.62
      └── Comparar resultados con BD_POSE_A2 — deben coincidir
+T9b. Sincronizar usuarios gerentes desde maestro Obras_Gerencias
+     └── sync_usuarios_gerentes.py lee catalogos.obras_gerencias
+     └── INSERT INTO usuarios ON CONFLICT DO UPDATE (idempotente)
 ```
 
 ### BLOQUE C — API
@@ -253,12 +447,24 @@ T9.  Verificar ETL Python conecta a PostgreSQL vía psycopg2 (por VPN)
 ```text
 T10. Crear repo Pose_API — FastAPI + uvicorn + estructura base
      └── main.py, routers/, schemas/, tests/ — scaffold inicial
-T11. Endpoints mock: /api/v1/costos /api/v1/despachos /api/v1/mensuales
+T11. Endpoints mock + reportes descargables
+     ├── GET /api/v1/costos?obra={id}              → datos director
+     ├── GET /api/v1/despachos?obra={id}           → datos director
+     ├── GET /api/v1/mensuales?obra={id}           → datos director
+     ├── GET /api/v1/etl/ultimo_update             → timestamp última carga
+     ├── POST /api/v1/etl/ejecutar                 → solo rol admin_rd
+     ├── GET /api/v1/reportes/{gerencia}/informe   → Excel formateado (xlsxwriter)
+     └── GET /api/v1/reportes/{gerencia}/datos     → dataset crudo .xlsx
+     [Con T11 completo se desbloquea BLOQUE D — Frontend puede avanzar en paralelo]
 T12. Implementar JWT: /auth/login, token, rutas protegidas
+     └── Roles: director_financiero / gerente_obra / admin_rd
+     └── gerente_obra: filtrado automático por obras_habilitadas[]
 T13. Conectar FastAPI a PostgreSQL 16 vía psycopg2 + queries reales
 T14. Configurar nginx proxy_pass a FastAPI :8000
 T15. Desplegar Pose_API como contenedor Docker en Hetzner
-     └── Gemini define Dockerfile + docker-compose.yml + imagen en registry
+     └── Gemini define Dockerfile + docker-compose.yml
+     └── Imagen publicada en ghcr.io/richard-ia86/pose_api:latest
+     └── Deploy: GitHub Actions → ghcr.io → SSH CX33 → docker pull + restart
      └── PostgreSQL corre directo en host (sin contenedor — datos fuera de Docker)
 T16. Agregar Pose_API al pipeline EcoSauron (PASO 8)
 ```
@@ -282,13 +488,15 @@ T22. Desplegar en Hetzner + verificar SSL + Cloudflare proxy
 T23. Tests Jest + React Testing Library (componentes críticos)
 T24. Playwright E2E: login → ver dashboard → filtrar período
 T25. Agregar Pose_Frontend al pipeline EcoSauron (PASO 7)
-T26. FLIP: ETL Python apunta a PostgreSQL Hetzner (cambio de config)
+T26. Automatización de maestros lookups
+     └── [QA] Prerequisito del flip — sin lookups actualizados la validación
+         ETL Python vs BD_POSE_A2 puede dar falsos positivos
+T27. FLIP: ETL Python apunta a PostgreSQL Hetzner (cambio de config)
      └── Validar datos coinciden con BD_POSE_A2
      └── BD_POSE_A2 y SQL Express quedan como respaldo (read-only)
-T27. Procesar crudos acumulados en input_raw/ con ETL (batch)
-T28. Acta de cierre Sprint 17
-T29. Actualizar mapa_ecosistema.md + docs arquitectura final
-T30. Automatización de maestros lookups
+T28. Procesar crudos acumulados en input_raw/ con ETL (batch)
+T29. Acta de cierre Sprint 17
+T30. Actualizar mapa_ecosistema.md + docs arquitectura final
 ```
 
 ---
