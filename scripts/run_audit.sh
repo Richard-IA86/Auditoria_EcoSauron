@@ -93,6 +93,20 @@ run_static_analysis() {
             >> "$AUDIT_LOG" 2>&1) || ((errores++))
     fi
 
+    # Frontend (Next.js / TS)
+    if [[ -f "${repo_path}/package.json" ]]; then
+        if command -v npm &>/dev/null; then
+            log "INFO" "[${nombre}] eslint..."
+            (cd "$repo_path" && npm run lint \
+                >> "$AUDIT_LOG" 2>&1) || ((errores++))
+            log "INFO" "[${nombre}] tsc..."
+            (cd "$repo_path" && npx tsc --noEmit \
+                >> "$AUDIT_LOG" 2>&1) || ((errores++))
+        else
+            log "WARN" "[${nombre}] npm no encontrado, saltando eslint/tsc."
+        fi
+    fi
+
     # pymarkdown — linting de archivos .md en docs/
     if command -v pymarkdown &>/dev/null; then
         local md_dir="${repo_path}/docs"
@@ -151,7 +165,7 @@ update_bitacora() {
 
     # Lista de repos auditados
     local repos_lista=""
-    for repo_path in "${WORKSPACES_DIR}"/*/; do
+    for repo_path in "${ALL_REPOS[@]}"; do
         repo_path="${repo_path%/}"
         repos_lista+="  - $(basename "$repo_path")"$'\n'
     done
@@ -231,7 +245,7 @@ generate_report() {
 ## Repositorios Auditados
 
 \`\`\`
-$(ls -1 "${WORKSPACES_DIR}" 2>/dev/null || echo "Sin workspaces")
+$(for r in "${ALL_REPOS[@]}"; do basename "$r"; done)
 \`\`\`
 
 ## Log de Errores
@@ -249,6 +263,15 @@ EOF
 # -----------------------------------------------------------
 mkdir -p "$LOG_DIR" "$WORKSPACES_DIR"
 banner
+
+declare -a ALL_REPOS
+shopt -s nullglob
+for d in "${WORKSPACES_DIR}"/*/; do
+    ALL_REPOS+=("${d%/}")
+done
+if [[ -d "${REPO_ROOT}/../Pose_API" ]]; then ALL_REPOS+=("${REPO_ROOT}/../Pose_API"); fi
+if [[ -d "${REPO_ROOT}/../Pose_Frontend" ]]; then ALL_REPOS+=("${REPO_ROOT}/../Pose_Frontend"); fi
+
 
 estado_json="⏳"
 estado_integracion="⏳"
@@ -338,8 +361,7 @@ fi
 # PASO 4: Análisis estático por repositorio
 # -----------------------------------------------------------
 errores_static=0
-shopt -s nullglob
-for repo_path in "${WORKSPACES_DIR}"/*/; do
+for repo_path in "${ALL_REPOS[@]}"; do
     repo_path="${repo_path%/}"
     run_static_analysis "$repo_path" || ((errores_static++))
 done
@@ -354,7 +376,7 @@ fi
 # PASO 5: Tests unitarios por repositorio
 # -----------------------------------------------------------
 errores_tests=0
-for repo_path in "${WORKSPACES_DIR}"/*/; do
+for repo_path in "${ALL_REPOS[@]}"; do
     repo_path="${repo_path%/}"
     run_tests "$repo_path" || ((errores_tests++))
 done

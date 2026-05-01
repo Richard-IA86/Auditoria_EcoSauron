@@ -447,14 +447,14 @@ T5.  Instalar WireGuard en servidor + agregar peers:
      ├── M2 Asus Windows (ETL + admin SSH)
      └── M2b equipo RD backup (ETL :5432 — sin acceso SSH al servidor)
 T6.  Instalar nginx + certbot + certificado Let's Encrypt
-T7.  Instalar PostgreSQL 16 en servidor
-T7b. Instalar Docker en servidor (prerequisito para T15)
+T7.  [✅] Instalar PostgreSQL 16 en servidor
+T7b. [✅] Instalar Docker en servidor (prerequisito para T15)
 ```
 
 ### BLOQUE B — Migración de datos
 
 ```text
-T8a. Snapshot inicial antes de la migración
+T8a. [✅] Snapshot inicial antes de la migración
      └── pg_dump → /backups/snapshots/snapshot_pre_sprint17.dump (sin rotación)
 T8b. Migrar BD_POSE_A2 → PostgreSQL 16 (volcado + restore)
 T8c. Migrar DW_GrupoPOSE_B52 → PostgreSQL 16
@@ -471,7 +471,7 @@ T9b. Sincronizar usuarios gerentes desde maestro Obras_Gerencias
 ### BLOQUE C — API
 
 ```text
-T10. Crear repo Pose_API — FastAPI + uvicorn + estructura base
+T10. [✅] Crear repo Pose_API — FastAPI + uvicorn + estructura base
      └── main.py, routers/, schemas/, tests/ — scaffold inicial
 T11. Endpoints mock + reportes descargables
      ├── GET /api/v1/costos?obra={id}              → datos director
@@ -487,7 +487,7 @@ T12. Implementar JWT: /auth/login, token, rutas protegidas
      └── gerente_obra: filtrado automático por obras_habilitadas[]
 T13. Conectar FastAPI a PostgreSQL 16 vía psycopg2 + queries reales
 T14. Configurar nginx proxy_pass a FastAPI :8000
-T15. Desplegar Pose_API como contenedor Docker en Hetzner
+T15. [✅] Desplegar Pose_API como contenedor Docker en Hetzner
      └── Gemini define Dockerfile + docker-compose.yml
      └── Imagen publicada en ghcr.io/richard-ia86/pose_api:latest
      └── Deploy: GitHub Actions → ghcr.io → SSH CX33 → docker pull + restart
@@ -498,14 +498,14 @@ T16. Agregar Pose_API al pipeline EcoSauron (PASO 8)
 ### BLOQUE D — Frontend
 
 ```text
-T17. Crear repo Pose_Frontend — Next.js + TypeScript
+T17. [✅] Crear repo Pose_Frontend — Next.js + TypeScript
      └── npx create-next-app --typescript
      └── Estructura: components/, pages/, lib/api.ts
 T18. Componentes con Copilot: Sidebar, BarChart, LineChart, DataTable
 T19. Páginas: /dashboard (costos), /despachos, /mensuales
 T20. Conectar fetch a FastAPI con JWT en headers
 T21. Build: next build + nginx serve estático
-T22. Desplegar en Hetzner + verificar SSL + Cloudflare proxy
+T22. [✅] Desplegar en Hetzner + verificar SSL + Cloudflare proxy
 ```
 
 ### BLOQUE E — QA, palanca y cierre
@@ -604,3 +604,53 @@ No se tocan en ningún caso de rollback.**
 | Último commit orquestador | `52a17e4` |
 | Repos nuevos a crear | `Pose_API`, `Pose_Frontend` |
 | ETL pipeline a reemplazar | `planif_pose/scripts/menu_ejecucion.bat` (.pq) |
+
+---
+
+## 15. Plan Maestro — Hitos Logrados y Siguientes Pasos (2026-04-28)
+
+### Fase 1 Completada: Infraestructura y DevOps Base
+
+El trabajo técnico "duro" del servidor está terminado.
+Hemos logrado construir un ecosistema automatizado y seguro:
+
+1. **Seguridad y Accesos**: Rescatamos y consolidamos claves,
+   accesos SSH y certificados de WireGuard.
+2. **Defensas Listas**: Snapshot de seguridad ejecutado en la
+   base `pose_db` del servidor Hetzner.
+3. **Orquestador (El Guardian)**: **Traefik** configurado y
+   corriendo con éxito en Hetzner para manejar dominios,
+   puertos y SSL automáticos.
+4. **CI/CD (Pipelines)**: GitHub Actions conectado exitosamente
+   con Hetzner. El código ahora viaja directo de la máquina
+   local (`main`) a producción sin intervención manual.
+
+### Fase 2 ACTIVA: Desarrollo del Código y Validaciones
+
+Con las "tuberías" funcionando, el Plan Maestro ahora se
+enfoca puramente en dar vida al producto:
+
+**Paso 1: Validacion Web (Hetzner + Cloudflare)**
+
+- Confirmar que los dominios (`gestionpose.com.ar` y
+  `api.gestionpose.com.ar`) enrutan correctamente a los
+  nuevos contenedores desplegados por el CI/CD.
+
+**Paso 2: Desarrollo del Backend (`Pose_API`)**
+
+- Construir los Endpoints reales (`T11`).
+- Implementar Autenticacion y Autorizacion por JWT (`T12`).
+- Conexion final con PostgreSQL (`T13`).
+
+**Paso 3: Desarrollo del Frontend (`Pose_Frontend`)**
+
+- Construccion de Componentes Visuales con datos simulados
+  o reales de la API (`T18`, `T19`).
+- Integracion del sistema de Login con los JWT de la API
+  (`T20`).
+
+**Paso 4: El FLIP de Datos (ETL)**
+
+- Validar que el ETL de Python corra en Asus y logre
+  insertar registros sin errores en la DB PostgreSQL de
+  Hetzner a través de la VPN (`T9`, `T27`).

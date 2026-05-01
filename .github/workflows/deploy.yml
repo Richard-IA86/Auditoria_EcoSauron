@@ -18,6 +18,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SERVIDOR_KEY_GITHUB }}
           script: |
+            set -euo pipefail # Salir inmediatamente si un comando falla
+            echo "Iniciando ejecución de comandos en el servidor..."
             cd /opt/ojo-de-sauron
             echo "¡Conexión exitosa desde GitHub Actions!"
             docker --version
