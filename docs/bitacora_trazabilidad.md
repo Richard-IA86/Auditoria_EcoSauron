@@ -18,6 +18,36 @@ Los logs detallados se encuentran en `logs/`.
 
 ---
 
+**Fecha y hora:** 2026-05-02
+**Ejecutado por:** richard@richard-iMac (M1)
+**Sprint:** sprint-17-hetzner
+
+**Acciones realizadas:**
+
+- Nomenclatura máquinas formalizada: M1=iMac/Linux | M2=Asus/Windows
+- PAT GHCR_TOKEN (read:packages) creado y cargado como secret en Pose_API y Pose_Frontend
+- GitHub Secrets cargados: HETZNER_HOST, HETZNER_USERNAME, HETZNER_SSH_KEY (ambos repos)
+- Fix Pose_Frontend: `public/.gitkeep` creado — Dockerfile multistage fallaba (commit 352c2cf)
+- CI/CD Pose_API: pipeline VERDE — build → push GHCR → deploy SSH Hetzner ✅
+- CI/CD Pose_Frontend: pipeline VERDE — build → push GHCR → deploy SSH Hetzner ✅
+- Stack Hetzner: pose_api + pose_frontend + pose_gateway corriendo
+- DBeaver M2: usuario `pose_dbeaver` creado (SELECT 5 esquemas) — 10.10.0.1:5432 OK
+- `/opt/pose/.env` creado (chmod 600): DB_PASSWORD + JWT_SECRET_KEY definitivo
+- `docker-compose.yml` servidor: hardcoding eliminado, `version` obsoleto removido
+
+**Resultado:** ✅ Sprint 17 — CI/CD operativo. Stack corriendo en Hetzner.
+
+| Componente | Estado |
+|---|---|
+| Pose_API CI/CD | ✅ VERDE |
+| Pose_Frontend CI/CD | ✅ VERDE |
+| DBeaver M2 → PostgreSQL | ✅ VERDE |
+| /opt/pose/.env | ✅ VERDE |
+
+**Pendiente próxima sesión:** T13 database.py psycopg2 pool | T9b sync_usuarios | rotar DB_PASSWORD
+
+---
+
 **Fecha y hora:** 2026-04-14 12:00:31
 **Ejecutado por:** richard@richard-iMac
 **Script ejecutado:** scripts/run_audit.sh

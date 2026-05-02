@@ -19,55 +19,60 @@
     },
     {
       "sprint": "sprint-17-hetzner",
-      "fecha": "2026-05-01",
+      "fecha": "2026-05-02",
       "estado": "EN_CURSO",
-      "accion_destacada": "Gemini completo infraestructura Hetzner — CI/CD bloqueado por GHCR auth",
-      "tareas_completadas_gemini": [
+      "accion_destacada": "CI/CD desbloqueado — Pose_API y Pose_Frontend deployando en Hetzner. DBeaver M2 conectado a PostgreSQL via WireGuard.",
+      "tareas_completadas": [
         "T5 — WireGuard activo (10.10.0.1=servidor / 10.10.0.2=iMac / 10.10.0.3=Asus)",
         "T6 — Nginx + SSL Traefik configurados (traefik/docker-compose.yml)",
-        "T7 — PostgreSQL 16 nativo en host (NO Docker), pose_db + 4 esquemas + pose_app + pose_backup",
+        "T7 — PostgreSQL 16 nativo en host (NO Docker), pose_db + 5 esquemas (auth/catalogos/datos/etl/public)",
         "T7b — Docker Engine instalado, red pose_network creada, /opt/pose creado",
-        "T15 parcial — Traefik corriendo como gateway (pose_gateway), apps/docker-compose.yml en servidor",
-        "CI/CD — Build y push a ghcr.io funcionando en Pose_API y Pose_Frontend"
+        "T15 — Traefik corriendo como gateway (pose_gateway)",
+        "CI/CD DESBLOQUEADO — GHCR_TOKEN (PAT read:packages) cargado en Pose_API y Pose_Frontend",
+        "CI/CD — HETZNER_HOST + HETZNER_USERNAME + HETZNER_SSH_KEY cargados como GitHub Secrets",
+        "Fix Pose_Frontend Dockerfile: public/ ausente → public/.gitkeep creado (commit 352c2cf)",
+        "Deploy Pose_API Hetzner: ✅ pipeline completo (build→push GHCR→SSH deploy)",
+        "Deploy Pose_Frontend Hetzner: ✅ pipeline completo (build→push GHCR→SSH deploy)",
+        "DBeaver M2: usuario pose_dbeaver creado con SELECT en 5 esquemas — conexión 10.10.0.1:5432 OK",
+        "/opt/pose/.env creado (chmod 600): DB_PASSWORD + JWT_SECRET_KEY definitivo",
+        "docker-compose.yml servidor: hardcoding eliminado → ${DB_PASSWORD} + ${JWT_SECRET_KEY}"
       ],
-      "bloqueador_actual": "Deploy step SSH falla: 'unauthorized' al hacer docker compose pull — GITHUB_TOKEN no funciona en contexto remoto SSH. Fix: crear PAT read:packages y cargarlo como GHCR_TOKEN",
       "alertas_seguridad": [
-        "apps/docker-compose.yml tiene DB_PASSWORD=Pose2026Temporal en texto plano — reemplazar por ${DB_PASSWORD} + .env en servidor",
-        "hetzner_access.md tiene llave SSH privada — verificar que .gitignore lo protege (CONFIRMADO ok)"
+        "DB_PASSWORD=Pose2026Temporal sigue activa — pendiente rotación definitiva",
+        "hetzner_access.md tiene llave SSH privada — .gitignore lo protege (CONFIRMADO ok)"
       ],
-      "proxima_accion": "Fix deploy.yml: docker login con GHCR_TOKEN (PAT) antes del docker compose pull"
+      "proxima_accion": "T13: implementar database.py con psycopg2 pool de conexiones en Pose_API"
     }
   ],
   "desarrollo_local": {
-    "fecha_actualizacion": "2026-05-01",
-    "punto_de_partida_manana": "Fix GHCR_TOKEN en deploy.yml + cargar GitHub Secrets + implementar T13 database.py"
+    "fecha_actualizacion": "2026-05-02",
+    "punto_de_partida_manana": "T13: database.py psycopg2 pool en Pose_API — CI/CD operativo, stack corriendo en Hetzner"
   },
   "jornada": {
     "fin": {
-      "fecha": "2026-05-01",
+      "fecha": "2026-05-02",
       "tareas_completadas": [
-        "Inicio de jornada: git pull 6 repos — planif_pose descargo commit 4780f62 (fix GERENCIA nula)",
-        "Analisis proyec_agente-eco.md: arquitectura CrewAI como proxy Richard (ancho de banda) evaluada y validada",
-        "Diagnostico Gimini-Richard_Infra: Gemini avanzo mas de lo documentado en JSONs — estado real reconstruido",
-        "T5/T6/T7/T7b CONFIRMADOS completos por evidencia en repos",
-        "Bloqueador real identificado: GHCR_TOKEN ausente en step SSH del deploy.yml",
-        "Fix deploy.yml Pose_API y Pose_Frontend: GITHUB_TOKEN → GHCR_TOKEN (PAT) en step SSH",
-        "Fix apps/docker-compose.yml: DB_PASSWORD hardcoded → ${DB_PASSWORD} + JWT_SECRET_KEY limpio",
-        "estado_proyecto.json orquestador actualizado con sprint-17-hetzner y avances Gemini"
+        "Nomenclatura máquinas documentada: M1=iMac/Linux, M2=Asus/Windows — memoria actualizada",
+        "3 repos nuevos detectados en workspace: Pose_API, Pose_Frontend, Gimini-Richard_Infra",
+        "PAT GHCR_TOKEN creado (read:packages) y cargado como secret en Pose_API y Pose_Frontend via gh CLI",
+        "HETZNER_HOST + HETZNER_USERNAME + HETZNER_SSH_KEY cargados como GitHub Secrets (ambos repos)",
+        "Fix Pose_Frontend: carpeta public/ ausente → public/.gitkeep (commit 352c2cf)",
+        "CI/CD Pose_API: pipeline completo VERDE — build→push GHCR→deploy SSH Hetzner",
+        "CI/CD Pose_Frontend: pipeline completo VERDE — build→push GHCR→deploy SSH Hetzner",
+        "Stack Hetzner verificado: pose_api + pose_frontend + pose_gateway corriendo",
+        "DBeaver M2: usuario pose_dbeaver creado (SELECT 5 esquemas) — conexión 10.10.0.1:5432 OK",
+        "/opt/pose/.env creado (chmod 600) con DB_PASSWORD y JWT_SECRET_KEY definitivo",
+        "docker-compose.yml servidor limpiado: hardcoding eliminado + version obsoleto removido"
       ],
       "tareas_pendientes_manana": [
-        "CRITICO — Crear PAT GitHub (scope: read:packages) y cargarlo como GHCR_TOKEN en Pose_API y Pose_Frontend",
-        "Cargar GitHub Secrets pendientes: HETZNER_HOST, HETZNER_USERNAME, HETZNER_SSH_KEY, DATABASE_URL, SECRET_KEY",
-        "Crear /opt/pose/.env en servidor Hetzner con DB_PASSWORD y JWT_SECRET_KEY reales",
-        "Rotar contrasena Pose2026Temporal en PostgreSQL antes de produccion",
-        "T13: implementar database.py real con psycopg2 pool de conexiones",
-        "T9b: sync_usuarios_gerentes.py — lee catalogos.obras_gerencias → INSERT auth.usuarios",
-        "DEFINIR — Gemini: como monitorear y seguir el cumplimiento de sus tareas en forma automatica",
-        "DEFINIR — CrewAI: ya corre en Asus, ver implementacion en iMac",
-        "EVALUAR — Ancho de banda humano: el agente podria ejecutar tareas repetitivas de los repos (ej: inicio y fin de jornada automaticos)"
+        "T13: implementar database.py real con psycopg2 pool de conexiones en Pose_API",
+        "T9b: sync_usuarios_gerentes.py — lee catalogos → INSERT auth.usuarios",
+        "Rotar Pose2026Temporal en PostgreSQL antes de producción real",
+        "DEFINIR — CrewAI: ya corre en M2/Asus, evaluar implementación en M1/iMac",
+        "Agregar Pose_API / Pose_Frontend / Gimini-Richard_Infra al protocolo git pull de inicio de jornada"
       ],
-      "notas_qa": "Fix GHCR_TOKEN aplicado en Pose_API y Pose_Frontend (deploy.yml). DB_PASSWORD hardcoded eliminado de apps/docker-compose.yml. SSH via IP directa 178.104.226.136 (dominio bloqueado por Cloudflare). CrewAI ya operativo en Asus — pendiente iMac. Proxima sesion: destrabar CI/CD completo.",
-      "estado_pipeline": "AMARILLO"
+      "notas_qa": "CI/CD desbloqueado y stack corriendo en Hetzner. DBeaver M2 operativo via WireGuard. JWT_SECRET_KEY definitivo solo en /opt/pose/.env del servidor (no versionado). Pendiente rotar DB_PASSWORD temporal.",
+      "estado_pipeline": "VERDE"
     }
   }
 }
