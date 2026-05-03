@@ -1,78 +1,71 @@
 {
-  "auditoria_qa": [
-    {
-      "sprint": "gemini-reviewer",
-      "fecha": "2026-04-21",
-      "estado": "APROBADO_POR_QA",
-      "pipeline": "6/6 APROBADO",
-      "accion_destacada": "Revisor AI Gemini Flash operativo — primer PR auto-aprobado",
-      "hallazgos": [
-        "scripts/ai_reviewer.py: 4 capas de filtrado (blocked_patterns/only_md/diff_size/Gemini)",
-        ".github/workflows/sauron_audit.yml: trigger pull_request → main",
-        "config/sauron_rules.json: reglas y modelo gemini-1.5-flash",
-        "pyproject.toml + setup.cfg creados en raiz del orquestador",
-        "Permiso Actions can_approve_pull_request_reviews habilitado via API",
-        "PR #5 (test/gemini-reviewer): APPROVED por github-actions[bot] — evidencia historica",
-        "PR #4 (prefetch_check.sh): aprobado manualmente antes del bot — tambien historial"
-      ],
-      "proxima_accion": "Probar regla Gemini con PR que contenga codigo Python real"
+    "auditoria_qa": [
+        {
+            "sprint": "gemini-reviewer",
+            "fecha": "2026-04-21",
+            "estado": "APROBADO_POR_QA",
+            "pipeline": "6/6 APROBADO",
+            "accion_destacada": "Revisor AI Gemini Flash operativo — primer PR auto-aprobado",
+            "hallazgos": [
+                "scripts/ai_reviewer.py: 4 capas de filtrado (blocked_patterns/only_md/diff_size/Gemini)",
+                ".github/workflows/sauron_audit.yml: trigger pull_request → main",
+                "config/sauron_rules.json: reglas y modelo gemini-1.5-flash",
+                "pyproject.toml + setup.cfg creados en raiz del orquestador",
+                "Permiso Actions can_approve_pull_request_reviews habilitado via API",
+                "PR #5 (test/gemini-reviewer): APPROVED por github-actions[bot] — evidencia historica",
+                "PR #4 (prefetch_check.sh): aprobado manualmente antes del bot — tambien historial"
+            ],
+            "proxima_accion": "Probar regla Gemini con PR que contenga codigo Python real"
+        },
+        {
+            "sprint": "sprint-17-hetzner",
+            "fecha": "2026-05-02",
+            "estado": "EN_CURSO",
+            "accion_destacada": "CI/CD desbloqueado — Pose_API y Pose_Frontend deployando en Hetzner. DBeaver M2 conectado a PostgreSQL via WireGuard.",
+            "tareas_completadas": [
+                "T5 — WireGuard activo (10.10.0.1=servidor / 10.10.0.2=iMac / 10.10.0.3=Asus)",
+                "T6 — Nginx + SSL Traefik configurados (traefik/docker-compose.yml)",
+                "T7 — PostgreSQL 16 nativo en host (NO Docker), pose_db + 5 esquemas (auth/catalogos/datos/etl/public)",
+                "T7b — Docker Engine instalado, red pose_network creada, /opt/pose creado",
+                "T15 — Traefik corriendo como gateway (pose_gateway)",
+                "CI/CD DESBLOQUEADO — GHCR_TOKEN (PAT read:packages) cargado en Pose_API y Pose_Frontend",
+                "CI/CD — HETZNER_HOST + HETZNER_USERNAME + HETZNER_SSH_KEY cargados como GitHub Secrets",
+                "Fix Pose_Frontend Dockerfile: public/ ausente → public/.gitkeep creado (commit 352c2cf)",
+                "Deploy Pose_API Hetzner: ✅ pipeline completo (build→push GHCR→SSH deploy)",
+                "Deploy Pose_Frontend Hetzner: ✅ pipeline completo (build→push GHCR→SSH deploy)",
+                "DBeaver M2: usuario pose_dbeaver creado con SELECT en 5 esquemas — conexión 10.10.0.1:5432 OK",
+                "/opt/pose/.env creado (chmod 600): DB_PASSWORD + JWT_SECRET_KEY definitivo",
+                "docker-compose.yml servidor: hardcoding eliminado → ${DB_PASSWORD} + ${JWT_SECRET_KEY}"
+            ],
+            "alertas_seguridad": [
+                "DB_PASSWORD=Pose2026Temporal sigue activa — pendiente rotación definitiva",
+                "hetzner_access.md tiene llave SSH privada — .gitignore lo protege (CONFIRMADO ok)"
+            ],
+            "proxima_accion": "T13: implementar database.py con psycopg2 pool de conexiones en Pose_API"
+        }
+    ],
+    "desarrollo_local": {
+        "fecha_actualizacion": "2026-05-02",
+        "punto_de_partida_manana": "Generar CSV limpios en Windows y correr ETL en Linux."
     },
-    {
-      "sprint": "sprint-17-hetzner",
-      "fecha": "2026-05-02",
-      "estado": "EN_CURSO",
-      "accion_destacada": "CI/CD desbloqueado — Pose_API y Pose_Frontend deployando en Hetzner. DBeaver M2 conectado a PostgreSQL via WireGuard.",
-      "tareas_completadas": [
-        "T5 — WireGuard activo (10.10.0.1=servidor / 10.10.0.2=iMac / 10.10.0.3=Asus)",
-        "T6 — Nginx + SSL Traefik configurados (traefik/docker-compose.yml)",
-        "T7 — PostgreSQL 16 nativo en host (NO Docker), pose_db + 5 esquemas (auth/catalogos/datos/etl/public)",
-        "T7b — Docker Engine instalado, red pose_network creada, /opt/pose creado",
-        "T15 — Traefik corriendo como gateway (pose_gateway)",
-        "CI/CD DESBLOQUEADO — GHCR_TOKEN (PAT read:packages) cargado en Pose_API y Pose_Frontend",
-        "CI/CD — HETZNER_HOST + HETZNER_USERNAME + HETZNER_SSH_KEY cargados como GitHub Secrets",
-        "Fix Pose_Frontend Dockerfile: public/ ausente → public/.gitkeep creado (commit 352c2cf)",
-        "Deploy Pose_API Hetzner: ✅ pipeline completo (build→push GHCR→SSH deploy)",
-        "Deploy Pose_Frontend Hetzner: ✅ pipeline completo (build→push GHCR→SSH deploy)",
-        "DBeaver M2: usuario pose_dbeaver creado con SELECT en 5 esquemas — conexión 10.10.0.1:5432 OK",
-        "/opt/pose/.env creado (chmod 600): DB_PASSWORD + JWT_SECRET_KEY definitivo",
-        "docker-compose.yml servidor: hardcoding eliminado → ${DB_PASSWORD} + ${JWT_SECRET_KEY}"
-      ],
-      "alertas_seguridad": [
-        "DB_PASSWORD=Pose2026Temporal sigue activa — pendiente rotación definitiva",
-        "hetzner_access.md tiene llave SSH privada — .gitignore lo protege (CONFIRMADO ok)"
-      ],
-      "proxima_accion": "T13: implementar database.py con psycopg2 pool de conexiones en Pose_API"
+    "jornada": {
+        "fin": {
+            "fecha": "2026-05-02",
+            "tareas_completadas": [
+                "Definición de arquitectura DEV/PROD para ETL",
+                "Creación de BD dw_grupopose_b52_dev y prod",
+                "Estabilización de loader.py (Pose_DataPipeline) con upsert/deduplicación",
+                "Fix bug de hashes en generador_b52_incremental.py (Planif_POSE)",
+                "Resolución de conflictos Git y sincronización GitHub"
+            ],
+            "tareas_pendientes_manana": [
+                "En Windows: Hacer git pull en Planif_POSE y correr consolidación para tener nuevo BaseCostosPOSE.xlsx",
+                "En Windows: Ejecutar generador_b52_incremental.py para los nuevos CSV sin el error de hash",
+                "En Linux: Mover CSVs al Pose_DataPipeline y ejecutar pipeline hacia la BD dev en Hetzner",
+                "Validación cruzada de los datos en Hetzner"
+            ],
+            "notas_qa": "Esperando el nuevo dataset del lado de Windows. Pipeline en Linux quedó validado y listo.",
+            "estado_pipeline": "VERDE"
+        }
     }
-  ],
-  "desarrollo_local": {
-    "fecha_actualizacion": "2026-05-02",
-    "punto_de_partida_manana": "T13: database.py psycopg2 pool en Pose_API — CI/CD operativo, stack corriendo en Hetzner"
-  },
-  "jornada": {
-    "fin": {
-      "fecha": "2026-05-02",
-      "tareas_completadas": [
-        "Nomenclatura máquinas documentada: M1=iMac/Linux, M2=Asus/Windows — memoria actualizada",
-        "3 repos nuevos detectados en workspace: Pose_API, Pose_Frontend, Gimini-Richard_Infra",
-        "PAT GHCR_TOKEN creado (read:packages) y cargado como secret en Pose_API y Pose_Frontend via gh CLI",
-        "HETZNER_HOST + HETZNER_USERNAME + HETZNER_SSH_KEY cargados como GitHub Secrets (ambos repos)",
-        "Fix Pose_Frontend: carpeta public/ ausente → public/.gitkeep (commit 352c2cf)",
-        "CI/CD Pose_API: pipeline completo VERDE — build→push GHCR→deploy SSH Hetzner",
-        "CI/CD Pose_Frontend: pipeline completo VERDE — build→push GHCR→deploy SSH Hetzner",
-        "Stack Hetzner verificado: pose_api + pose_frontend + pose_gateway corriendo",
-        "DBeaver M2: usuario pose_dbeaver creado (SELECT 5 esquemas) — conexión 10.10.0.1:5432 OK",
-        "/opt/pose/.env creado (chmod 600) con DB_PASSWORD y JWT_SECRET_KEY definitivo",
-        "docker-compose.yml servidor limpiado: hardcoding eliminado + version obsoleto removido"
-      ],
-      "tareas_pendientes_manana": [
-        "T13: implementar database.py real con psycopg2 pool de conexiones en Pose_API",
-        "T9b: sync_usuarios_gerentes.py — lee catalogos → INSERT auth.usuarios",
-        "Rotar Pose2026Temporal en PostgreSQL antes de producción real",
-        "DEFINIR — CrewAI: ya corre en M2/Asus, evaluar implementación en M1/iMac",
-        "Agregar Pose_API / Pose_Frontend / Gimini-Richard_Infra al protocolo git pull de inicio de jornada"
-      ],
-      "notas_qa": "CI/CD desbloqueado y stack corriendo en Hetzner. DBeaver M2 operativo via WireGuard. JWT_SECRET_KEY definitivo solo en /opt/pose/.env del servidor (no versionado). Pendiente rotar DB_PASSWORD temporal.",
-      "estado_pipeline": "VERDE"
-    }
-  }
 }
