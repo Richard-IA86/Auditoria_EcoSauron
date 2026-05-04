@@ -19,9 +19,9 @@
         },
         {
             "sprint": "sprint-17-hetzner",
-            "fecha": "2026-05-02",
+            "fecha": "2026-05-04",
             "estado": "EN_CURSO",
-            "accion_destacada": "CI/CD desbloqueado — Pose_API y Pose_Frontend deployando en Hetzner. DBeaver M2 conectado a PostgreSQL via WireGuard.",
+            "accion_destacada": "Fix incidente 521: Traefik v3.3 + File Provider + DB_HOST corregido. API y Frontend operativos en producción.",
             "tareas_completadas": [
                 "T5 — WireGuard activo (10.10.0.1=servidor / 10.10.0.2=iMac / 10.10.0.3=Asus)",
                 "T6 — Nginx + SSL Traefik configurados (traefik/docker-compose.yml)",
@@ -52,20 +52,24 @@
         "fin": {
             "fecha": "2026-05-04",
             "tareas_completadas": [
-                "Auditoría completa del maestro Loockups / scripts/actualizar_obras_gerencias.py (GestionComp)",
-                "Confirmado: Pose_API endpoint b53.py funcional, pandas OK, db.connection() SA 2.0",
-                "Confirmado: fetch-b53.js con URL dinámica local/prod deployado en Hetzner",
-                "Mapeada la brecha estructural B52 plano → clasificación jerárquica del dashboard",
-                "Identificado el rol de GestionComp como capa de dimensiones para el dashboard"
+                "Inicio jornada: git pull 6 repos — todos al día",
+                "Diagnóstico y resolución completa del incidente 521 (Cloudflare/Traefik/Docker)",
+                "Traefik v2.10 → v3.3 + File Provider — Docker 29.4.1 compatible",
+                "ACME TLS-ALPN-01 → HTTP-01 — compatible con Cloudflare proxy",
+                "DNS Cloudflare: registro A api.gestionpose.com.ar → 178.104.226.136 creado",
+                "DB_HOST corregido: WireGuard (10.10.0.1) → bridge Docker (172.18.0.1)",
+                "UFW + pg_hba.conf: red 172.18.0.0/16 habilitada para PostgreSQL",
+                "gestionpose.com.ar y api.gestionpose.com.ar operativos en HTTPS",
+                "Gimini-Richard_Infra documentado y pusheado (commit 254a38e)",
+                "Próxima tarea identificada: auth middleware Traefik basicAuth + dim_obras_gerencias"
             ],
             "tareas_pendientes_manana": [
+                "Traefik: middleware basicAuth en dynamic.yaml — proteger www.gestionpose.com.ar",
                 "GestionComp: actualizar_obras_gerencias.py → carga dim_obras_gerencias a PostgreSQL",
                 "Pose_API: b53.py → JOIN con dim_obras_gerencias para obras_monthly y obras[]",
-                "GestionComp: tests/test_actualizar_obras_gerencias.py (fixtures sin FAT32)",
-                "Verificar deploy producción: www.gestionpose.com.ar y api.gestionpose.com.ar/api/v1/b53/dashboard-data",
                 "Pendiente anterior (Windows M2): git pull Planif_POSE + generador_b52_incremental.py"
             ],
-            "notas_qa": "Jornada de auditoría y análisis arquitectural. Maestro Loockups auditado: funcional pero solo escribe FAT32, no PostgreSQL. Brecha crítica mapeada. Dashboard en Hetzner deployado, obras_monthly vacío hasta completar dim_obras_gerencias.",
+            "notas_qa": "Incidente 521 resuelto. Causa raíz: Docker 29.4.1 rechazó API 1.24 de Traefik v2.10. Fix completo aplicado en servidor y documentado. Sitio 100% operativo.",
             "estado_pipeline": "VERDE"
         }
     }
