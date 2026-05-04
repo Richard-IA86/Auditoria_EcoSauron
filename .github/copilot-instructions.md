@@ -73,27 +73,64 @@ bash scripts/prefetch_check.sh <repo_path> <ruta_archivo>
 
 ---
 
+## Morning Briefing Agent — crew_ecosauron
+
+Corre automáticamente cada mañana (lun-vie 6:50) vía crontab.
+Deposita `logs/infra_report_YYYY-MM-DD.json` en este repo.
+
+**En el trigger "inicio de jornada", SIEMPRE leer ese JSON primero:**
+
+```bash
+# Ver el infra report más reciente
+ls -t /home/richard/Dev/auditoria_ecosauron/logs/infra_report_*.json \
+  | head -1 | xargs cat
+```
+
+Reglas de interpretación del campo `semaforo_global`:
+
+- `VERDE` → infraestructura OK, continuar con el protocolo normal.
+- `AMARILLO` → hay alertas no críticas; reportarlas al usuario antes
+  de mostrar tareas.
+- `ROJO` → hay un fallo crítico (WireGuard caído, contenedores down,
+  API sin respuesta, PostgreSQL inaccesible). **Reportar PRIMERO,
+  antes de cualquier otra tarea.** No continuar hasta que el usuario
+  lo acuse.
+
+El agente vive en `/home/richard/Dev/crew_ecosauron`.
+Para ejecutarlo manualmente:
+
+```bash
+cd /home/richard/Dev/crew_ecosauron
+source venv/bin/activate
+python -m src.crew_ecosauron.main
+```
+
+---
+
 ## Protocolo de Jornada — Obligatorio
 
 ### Trigger: "inicio de jornada"
 
 **Secuencia obligatoria — en este orden exacto:**
 
-1. Leer `config/estado_proyecto.json` de cada repo auditado
+1. Leer el infra report más reciente en `logs/infra_report_*.json`
+   (ver sección Morning Briefing Agent arriba).
+   - Si `semaforo_global=ROJO` → reportar alerta y pausar.
+2. Leer `config/estado_proyecto.json` de cada repo auditado
    (archivos locales — estado al cierre de ayer).
-2. Ejecutar `git pull` en todos los repos del ecosistema:
+3. Ejecutar `git pull` en todos los repos del ecosistema:
    - `/home/richard/Dev/auditoria_ecosauron`
    - `workspaces/planif_pose`
    - `workspaces/bd_pose_b52`
    - `workspaces/richard_ia86_dev`
    - `workspaces/data_analytics`
    - `workspaces/gestion_comp`
-3. Recién entonces mostrar las tareas diarias para evaluar:
+4. Recién entonces mostrar las tareas diarias para evaluar:
    - `tareas_pendientes_manana` por repo
    - `notas_qa` y `estado_pipeline` por repo
    - Commits nuevos descargados (si los hay)
    - PRs o ramas remotas nuevas detectadas
-4. **No modificar ningún archivo en este trigger.**
+5. **No modificar ningún archivo en este trigger.**
 
 ### Trigger: "fin de jornada"
 
