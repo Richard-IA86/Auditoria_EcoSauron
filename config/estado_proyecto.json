@@ -45,26 +45,27 @@
         }
     ],
     "desarrollo_local": {
-        "fecha_actualizacion": "2026-05-02",
-        "punto_de_partida_manana": "Generar CSV limpios en Windows y correr ETL en Linux."
+        "fecha_actualizacion": "2026-05-04",
+        "punto_de_partida_manana": "GestionComp: agregar dim_obras_gerencias a PostgreSQL + JOIN en b53.py."
     },
     "jornada": {
         "fin": {
-            "fecha": "2026-05-02",
+            "fecha": "2026-05-04",
             "tareas_completadas": [
-                "Definición de arquitectura DEV/PROD para ETL",
-                "Creación de BD dw_grupopose_b52_dev y prod",
-                "Estabilización de loader.py (Pose_DataPipeline) con upsert/deduplicación",
-                "Fix bug de hashes en generador_b52_incremental.py (Planif_POSE)",
-                "Resolución de conflictos Git y sincronización GitHub"
+                "Auditoría completa del maestro Loockups / scripts/actualizar_obras_gerencias.py (GestionComp)",
+                "Confirmado: Pose_API endpoint b53.py funcional, pandas OK, db.connection() SA 2.0",
+                "Confirmado: fetch-b53.js con URL dinámica local/prod deployado en Hetzner",
+                "Mapeada la brecha estructural B52 plano → clasificación jerárquica del dashboard",
+                "Identificado el rol de GestionComp como capa de dimensiones para el dashboard"
             ],
             "tareas_pendientes_manana": [
-                "En Windows: Hacer git pull en Planif_POSE y correr consolidación para tener nuevo BaseCostosPOSE.xlsx",
-                "En Windows: Ejecutar generador_b52_incremental.py para los nuevos CSV sin el error de hash",
-                "En Linux: Mover CSVs al Pose_DataPipeline y ejecutar pipeline hacia la BD dev en Hetzner",
-                "Validación cruzada de los datos en Hetzner"
+                "GestionComp: actualizar_obras_gerencias.py → carga dim_obras_gerencias a PostgreSQL",
+                "Pose_API: b53.py → JOIN con dim_obras_gerencias para obras_monthly y obras[]",
+                "GestionComp: tests/test_actualizar_obras_gerencias.py (fixtures sin FAT32)",
+                "Verificar deploy producción: www.gestionpose.com.ar y api.gestionpose.com.ar/api/v1/b53/dashboard-data",
+                "Pendiente anterior (Windows M2): git pull Planif_POSE + generador_b52_incremental.py"
             ],
-            "notas_qa": "Esperando el nuevo dataset del lado de Windows. Pipeline en Linux quedó validado y listo.",
+            "notas_qa": "Jornada de auditoría y análisis arquitectural. Maestro Loockups auditado: funcional pero solo escribe FAT32, no PostgreSQL. Brecha crítica mapeada. Dashboard en Hetzner deployado, obras_monthly vacío hasta completar dim_obras_gerencias.",
             "estado_pipeline": "VERDE"
         }
     }
