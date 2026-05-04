@@ -1,6 +1,22 @@
 {
     "auditoria_qa": [
         {
+            "sprint": "morning-briefing-agent",
+            "fecha": "2026-05-04",
+            "estado": "OPERATIVO",
+            "pipeline": "crew_ecosauron fef4b21",
+            "accion_destacada": "Morning Briefing Agent operativo — modo directo sin LLM orchestration",
+            "hallazgos": [
+                "crew.py: ejecucion directa tools via .run(), semaforo deterministico",
+                "infra_tools.py: check_postgres usa SELECT 1 — tablas ausentes → null (no ERROR)",
+                "main.py: --dry-run actualizado (sin _build_llm)",
+                "crontab: 50 6 * * 1-5 activo en M1",
+                "Primera ejecucion 2026-05-04: AMARILLO — compose_drift detectado",
+                "compose_drift: labels TLS (entrypoints/certresolver) ausentes en repo vs servidor"
+            ],
+            "proxima_accion": "Sincronizar Gimini-Richard_Infra/apps/docker-compose.yml con labels TLS del servidor"
+        },
+        {
             "sprint": "gemini-reviewer",
             "fecha": "2026-04-21",
             "estado": "APROBADO_POR_QA",
