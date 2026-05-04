@@ -120,6 +120,7 @@ python -m src.crew_ecosauron.main
    (archivos locales — estado al cierre de ayer).
 3. Ejecutar `git pull` en todos los repos del ecosistema:
    - `/home/richard/Dev/auditoria_ecosauron`
+   - `/home/richard/Dev/crew_ecosauron`
    - `workspaces/planif_pose`
    - `workspaces/bd_pose_b52`
    - `workspaces/richard_ia86_dev`
@@ -137,7 +138,21 @@ python -m src.crew_ecosauron.main
 Actualizar `config/estado_proyecto.json` en cada repo afectado
 según sus instrucciones específicas, luego:
 
+**Paso 1 — Verificar y pushear `crew_ecosauron` si tiene cambios pendientes:**
+
 ```bash
+cd /home/richard/Dev/crew_ecosauron
+git status
+git add -A
+# Solo si hay cambios:
+git commit -m "chore(jornada): cierre YYYY-MM-DD"
+git push
+```
+
+**Paso 2 — Cerrar el orquestador `auditoria_ecosauron`:**
+
+```bash
+cd /home/richard/Dev/auditoria_ecosauron
 git status
 git add -A
 git commit -m "chore(jornada): cierre YYYY-MM-DD"
