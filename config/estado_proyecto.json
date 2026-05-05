@@ -61,29 +61,28 @@
         }
     ],
     "desarrollo_local": {
-        "fecha_actualizacion": "2026-05-04",
-        "punto_de_partida_manana": "En M2 Windows: git pull Planif_POSE + generador_b52_incremental.py. Luego en Linux: Pose_DataPipeline hacia BD dev Hetzner."
+        "fecha_actualizacion": "2026-05-05",
+        "punto_de_partida_manana": "[M2/Windows] Prueba diferencial generador_b52_incremental_v2 + investigar OBRA_PRONTO/FUENTE en PQ. [M1/Linux] Sin deuda activa."
     },
     "jornada": {
         "fin": {
-            "fecha": "2026-05-04",
+            "fecha": "2026-05-05",
             "tareas_completadas": [
-                "crew_ecosauron operativo — modo directo sin LLM, crontab 6:50 lun-vie activo",
-                "Primera ejecución real exitosa — infra_report_2026-05-04.json generado",
-                "compose_drift resuelto: comillas YAML normalizadas + version:3.8 eliminado (commit 86f5112)",
-                "dim_obras_gerencias PROD — 582 filas cargadas en dw_grupopose_b52_prod",
-                "Pose_API: JOIN dim_obras_gerencias operativo — 712 obras con gerencias en endpoint b53",
-                "basicAuth www.gestionpose.com.ar — hash bcrypt corregido ($$ → $ YAML file provider)",
-                "dynamic.yaml corregido en servidor vía SCP y sincronizado en repo (commit 6100af9)",
-                "Verificación: sin creds=401, con gestion_admin:Martina!=200 — OPERATIVO"
+                "Fix SSH cron — clave id_ed25519_hetzner agregada a authorized_keys Hetzner (falso ROJO en briefing resuelto)",
+                "Inicio de jornada completo — git pull 7 repos, todos al día",
+                "Diagnóstico desacople M1/M2 en planif_pose — tareas mezcladas de ambas máquinas identificadas",
+                "planif_pose estado_proyecto.json alineado — prefijos [M1/Linux]/[M2/Windows] + tareas_no_aplica",
+                "loader.py BD dev — cerrado como NO APLICA: dev conserva 34.691 filas (mar-2026) como escenario controlado para pruebas incrementales",
+                "Pull planif_pose post-M2 — M2 reportó desfase generador v2: +31 inserts y +1 update no capturados",
+                "Análisis reporte_analisis_desfase_v2.md — desfase aislado en generador_b52_incremental_v2.py",
+                "Clarificado flujo Loockups.xlsx en planif_pose — actualización vía gestion_comp → copia manual a data/sistema/"
             ],
             "tareas_pendientes_manana": [
-                "En M2 Windows: git pull Planif_POSE + ejecutar generador_b52_incremental.py",
-                "En M2 Windows: mover CSVs generados a Pose_DataPipeline/data/inbox/",
-                "En Linux: Pose_DataPipeline ETL hacia BD dev en Hetzner",
-                "En Linux: validación cruzada de datos cargados en Hetzner BD dev"
+                "[M2/Windows] Validar prueba diferencial v2: correr 1+5 del .bat con cambio real en input_raw",
+                "[M2/Windows] Investigar si OBRA_PRONTO y FUENTE son sobreescritos por Power Query desde tabla maestra",
+                "[M1/Linux] Revisar lógica generador_b52_incremental_v2.py — no capturó delta +31 inserts +1 update (con M2)"
             ],
-            "notas_qa": "Sprint-17 completado. El fix $$ vs $ en Traefik YAML es crítico documentar: $$ solo aplica en Docker Compose labels, $ simple en File Provider YAML. crew_ecosauron emite VERDE hoy.",
+            "notas_qa": "Jornada de diagnóstico y alineación M1/M2. SSH cron corregido. Desacople planif_pose resuelto con prefijos de entorno. Desfase generador v2 identificado y documentado por M2 — pendiente fix en próxima sesión.",
             "estado_pipeline": "VERDE"
         }
     }
