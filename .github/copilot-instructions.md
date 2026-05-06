@@ -123,6 +123,12 @@ python -m src.crew_ecosauron.main
 
 ### Trigger: "fin de jornada"
 
+> **CHECKLIST OBLIGATORIO — 3 repos a cerrar en este orden:**
+>
+> - [ ] `crew_ecosauron` → `git status` + commit + push
+> - [ ] `auditoria_ecosauron` → `config/estado_proyecto.json` + commit + push
+> - [ ] Repos afectados del día → según instrucciones específicas
+
 Actualizar `config/estado_proyecto.json` en cada repo afectado
 según sus instrucciones específicas, luego:
 
