@@ -1,0 +1,219 @@
+{
+  "fecha": "2026-05-06",
+  "semaforo_global": "AMARILLO",
+  "alertas": [
+    {
+      "item": "dim_obras_drift",
+      "severidad": "WARN",
+      "accion": "dim_obras desincronizada"
+    }
+  ],
+  "crew_metrics": {
+    "inicio": "2026-05-06T13:14:38",
+    "duracion_segundos": 36.4,
+    "semaforo": "AMARILLO",
+    "pasos": {
+      "wireguard": {
+        "duracion_s": 2.3,
+        "status": "OK"
+      },
+      "containers": {
+        "duracion_s": 3.7,
+        "status": "OK"
+      },
+      "api_endpoint": {
+        "duracion_s": 7.4,
+        "status": "OK"
+      },
+      "postgres": {
+        "duracion_s": 6.2,
+        "status": "OK"
+      },
+      "git_status": {
+        "duracion_s": 5.7,
+        "status": "OK"
+      },
+      "git_pull_proyectos": {
+        "duracion_s": 4.6,
+        "status": "OK"
+      },
+      "drift_checks": {
+        "duracion_s": 6.4,
+        "status": "OK"
+      }
+    },
+    "alertas_count": 1
+  },
+  "infra": {
+    "wireguard": {
+      "status": "OK",
+      "stats": "rtt min/avg/max/mdev = 254.112/256.662/261.198/3.215 ms"
+    },
+    "containers": {
+      "status": "OK",
+      "contenedores": {
+        "pose_api": "Up 2 days",
+        "pose_gateway": "Up 2 days",
+        "pose_frontend": "Up 2 days"
+      },
+      "faltantes": []
+    },
+    "endpoint": {
+      "status": "OK",
+      "http_code": 200,
+      "meses": 0,
+      "gerencias": 0
+    },
+    "postgres": {
+      "status": "OK",
+      "bases": {
+        "dev": {
+          "status": "OK",
+          "db": "dw_grupopose_b52_dev",
+          "tablas": {
+            "fact_costos_b52": 34691,
+            "dim_obras_gerencias": null
+          }
+        },
+        "prod": {
+          "status": "OK",
+          "db": "dw_grupopose_b52_prod",
+          "tablas": {
+            "fact_costos_b52": 455664,
+            "dim_obras_gerencias": 582
+          }
+        }
+      }
+    }
+  },
+  "drift": {
+    "repos": {
+      "ecosauron": {
+        "rama": "main",
+        "commits_adelante": 0,
+        "commits_atras": 0,
+        "archivos_modificados": 0,
+        "detalle_modificados": [],
+        "detalle_atras": []
+      },
+      "gestion_comp": {
+        "rama": "main",
+        "commits_adelante": 0,
+        "commits_atras": 0,
+        "archivos_modificados": 0,
+        "detalle_modificados": [],
+        "detalle_atras": []
+      },
+      "planif_pose": {
+        "rama": "main",
+        "commits_adelante": 0,
+        "commits_atras": 0,
+        "archivos_modificados": 0,
+        "detalle_modificados": [],
+        "detalle_atras": []
+      },
+      "bd_pose_b52": {
+        "rama": "main",
+        "commits_adelante": 0,
+        "commits_atras": 0,
+        "archivos_modificados": 0,
+        "detalle_modificados": [],
+        "detalle_atras": []
+      },
+      "richard_ia86_dev": {
+        "rama": "main",
+        "commits_adelante": 0,
+        "commits_atras": 0,
+        "archivos_modificados": 0,
+        "detalle_modificados": [],
+        "detalle_atras": []
+      },
+      "data_analytics": {
+        "rama": "main",
+        "commits_adelante": 0,
+        "commits_atras": 0,
+        "archivos_modificados": 0,
+        "detalle_modificados": [],
+        "detalle_atras": []
+      }
+    },
+    "compose_drift": {
+      "status": "SINCRONIZADO",
+      "drift": false
+    },
+    "dim_obras_drift": {
+      "status": "DRIFT",
+      "filas_loockups_xlsx": 589,
+      "filas_postgres": 582,
+      "diferencia": 7,
+      "drift": true
+    }
+  },
+  "proyectos": {
+    "ecosauron": {
+      "sync": "Sincronizado OK",
+      "estado_jornada": {
+        "fecha_cierre": "2026-05-05",
+        "tareas_pendientes": [
+          "[M2/Windows] Validar prueba diferencial v2: correr 1+5 del .bat con cambio real en input_raw",
+          "[M2/Windows] Investigar si OBRA_PRONTO y FUENTE son sobreescritos por Power Query desde tabla maestra",
+          "[M1/Linux] Revisar lógica generador_b52_incremental_v2.py — no capturó delta +31 inserts +1 update (con M2)"
+        ],
+        "notas_qa": "Jornada de diagnóstico y alineación M1/M2. SSH cron corregido. Desacople planif_pose resuelto con prefijos de entorno. Desfase generador v2 identificado y documentado por M2 — pendiente fix en próxima sesión.",
+        "estado_pipeline": "VERDE"
+      }
+    },
+    "gestion_comp": {
+      "sync": "Skipped (Regla de repositorio)",
+      "estado_jornada": {
+        "fecha_cierre": "2026-05-04",
+        "tareas_pendientes": [
+          "Ejecutar sin --dry-run y verificar escritura real en Loockups.xlsx",
+          "Test real con conexión PostgreSQL DEV (dim_obras_gerencias)",
+          "QA: tests/test_actualizar_obras_gerencias.py con fixtures sin FAT32",
+          "Verificar deploy en producción: www.gestionpose.com.ar"
+        ],
+        "notas_qa": "RN-001 registrada. Dry-run OK: 582 filas (434 ProntoNet + 148 históricas), 11 COMPENSABLE_CAMBIO accionables. Listo para ejecución real.",
+        "estado_pipeline": "VERDE"
+      }
+    },
+    "planif_pose": {
+      "sync": "Sincronizado OK",
+      "estado_jornada": {
+        "fecha_cierre": "2026-05-05",
+        "tareas_pendientes": [],
+        "notas_qa": "Jornada 2026-05-05: fix COMPENSABLE completado y verificado. Las 4 tareas del sprint anterior marcadas N/A (corresponden a repo Pose_DataPipeline/Linux). BaseCostosPOSE.xlsx regenerado con COMPENSABLE correcto en 455.698 filas.",
+        "estado_pipeline": "VERDE"
+      }
+    },
+    "bd_pose_b52": {
+      "sync": "Sincronizado OK",
+      "estado_jornada": {
+        "error": "Fallo lectura JSON: Expecting property name enclosed in double quotes: line 229 column 5 (char 13103)"
+      }
+    },
+    "richard_ia86_dev": {
+      "sync": "Sincronizado OK",
+      "estado_jornada": {
+        "fecha_cierre": "2026-04-20",
+        "tareas_pendientes": [
+          "Obra 479 (PUNTA LARA): actualizar Loockups.xlsx fila 589 de 00009999 a 00000479 (cosmético)",
+          "Evaluar 4 duplicados residuales QUINCENAS 03-2026.xlsx (FECHA+OBRA+CUENTA+DETALLE idénticos)"
+        ],
+        "notas_qa": "QA re-aplicó rollback_20260420 completo. 226 tests VERDE. HP eliminado de toda la config. Pipeline limpio.",
+        "estado_pipeline": "VERDE"
+      }
+    },
+    "data_analytics": {
+      "sync": "Sincronizado OK",
+      "estado_jornada": {
+        "fecha_cierre": "2026-05-02",
+        "tareas_pendientes": [
+          "Reanudación de los sprints en curso"
+        ],
+        "notas_qa": "Cierre de jornada automático de la IA.",
+        "estado_pipeline": "VERDE"
+      }
+    }
+  }
+}
