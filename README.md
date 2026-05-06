@@ -50,7 +50,7 @@ bash scripts/fix_bd_pose_b52.sh
 
 El cron ejecuta el pipeline cada día a las 06:00:
 
-```
+```text
 0 6 * * * /home/richard/Dev/auditoria_ecosauron/scripts/cron_auditoria.sh
 ```
 
@@ -61,7 +61,7 @@ Si la auditoría falla, aparece una alerta al abrir la terminal.
 
 ## Estructura
 
-```
+```text
 Auditoria_EcoSauron/
 ├── config/
 │   └── repos.txt            # Lista de repos a clonar/auditar
@@ -117,4 +117,3 @@ referencia completa de scripts, convenciones y configuración CI.
 - Nombres de archivos y carpetas: `snake_case`
 - Líneas de código: máximo 79 caracteres (PEP 8)
 - Sistema operativo: Linux (bash nativo)
-
