@@ -111,27 +111,15 @@ python -m src.crew_ecosauron.main
 
 ### Trigger: "inicio de jornada"
 
-**Secuencia obligatoria — en este orden exacto:**
-
-1. Leer el infra report más reciente en `logs/infra_report_*.json`
-   (ver sección Morning Briefing Agent arriba).
-   - Si `semaforo_global=ROJO` → reportar alerta y pausar.
-2. Leer `config/estado_proyecto.json` de cada repo auditado
-   (archivos locales — estado al cierre de ayer).
-3. Ejecutar `git pull` en todos los repos del ecosistema:
-   - `/home/richard/Dev/auditoria_ecosauron`
-   - `/home/richard/Dev/crew_ecosauron`
-   - `workspaces/planif_pose`
-   - `workspaces/bd_pose_b52`
-   - `workspaces/richard_ia86_dev`
-   - `workspaces/data_analytics`
-   - `workspaces/gestion_comp`
-4. Recién entonces mostrar las tareas diarias para evaluar:
-   - `tareas_pendientes_manana` por repo
-   - `notas_qa` y `estado_pipeline` por repo
-   - Commits nuevos descargados (si los hay)
-   - PRs o ramas remotas nuevas detectadas
-5. **No modificar ningún archivo en este trigger.**
+1. Leer directamente el reporte consolidado diario en `/home/richard/Dev/auditoria_ecosauron/logs/novedades_diarias.md`.
+2. Si el **Semáforo Global es ROJO**, detenerse y alertar al usuario inmediatamente.
+3. Si está en VERDE/AMARILLO, reportar un breve resumen de tareas pendientes para el repositorio actual de acuerdo al documento.
+4. **Actualizar el documento de Sprint/Backlog local** (p. ej. `TASKS.md` o
+   backlog) con el plan de acción del día, estructurando las novedades
+   extraídas y preguntando al usuario con qué iniciar.
+5. **No modificar ningún otro archivo ni ejecutar comandos Git (como pull)
+   en este trigger**, ya que el agente Crew se encarga de la sincronización
+   automatizada en segundo plano.
 
 ### Trigger: "fin de jornada"
 
