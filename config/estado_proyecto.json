@@ -61,28 +61,30 @@
         }
     ],
     "desarrollo_local": {
-        "fecha_actualizacion": "2026-05-05",
-        "punto_de_partida_manana": "[M2/Windows] Prueba diferencial generador_b52_incremental_v2 + investigar OBRA_PRONTO/FUENTE en PQ. [M1/Linux] Sin deuda activa."
+        "fecha_actualizacion": "2026-05-06",
+        "punto_de_partida_manana": "3 focos: (1) ETL A2/B52 provisorio, (2) BD PostgreSQL alternativas de descarga, (3) GestionComp ETL sin .pq"
     },
     "jornada": {
         "fin": {
-            "fecha": "2026-05-05",
+            "fecha": "2026-05-06",
             "tareas_completadas": [
-                "Fix SSH cron — clave id_ed25519_hetzner agregada a authorized_keys Hetzner (falso ROJO en briefing resuelto)",
-                "Inicio de jornada completo — git pull 7 repos, todos al día",
-                "Diagnóstico desacople M1/M2 en planif_pose — tareas mezcladas de ambas máquinas identificadas",
-                "planif_pose estado_proyecto.json alineado — prefijos [M1/Linux]/[M2/Windows] + tareas_no_aplica",
-                "loader.py BD dev — cerrado como NO APLICA: dev conserva 34.691 filas (mar-2026) como escenario controlado para pruebas incrementales",
-                "Pull planif_pose post-M2 — M2 reportó desfase generador v2: +31 inserts y +1 update no capturados",
-                "Análisis reporte_analisis_desfase_v2.md — desfase aislado en generador_b52_incremental_v2.py",
-                "Clarificado flujo Loockups.xlsx en planif_pose — actualización vía gestion_comp → copia manual a data/sistema/"
+                "crew.py instrumentado con métricas por paso (import time, _paso(), crew_metrics en JSON/MD)",
+                "cron_briefing.sh: timestamp inicio/fin + duración total en cron.log",
+                "novedades_diarias.md: crew status al tope del MD antes del semáforo",
+                "Paso 4 validado — crew corrido manual: 36.4s, 7/7 pasos OK, semáforo AMARILLO",
+                "5 estado_proyecto.json migrados a schema v1.0 (gestion_comp/planif_pose/richard_ia86_dev/data_analytics/bd_pose_b52)",
+                "PR #17 richard_ia86_dev mergeado — rama chore/schema-v1.0 eliminada",
+                "pre_commit_hook.sh: excluir logs/ del chequeo pymarkdown (output auto-generado)",
+                "Hook propagado a 6 repos",
+                "fix MD013/MD022/MD032/MD004/MD047 en 4 copilot-instructions.md",
+                "Isindur (M2): acceso al JSON via URL raw GitHub — sin clonar auditoria_ecosauron"
             ],
             "tareas_pendientes_manana": [
-                "[M2/Windows] Validar prueba diferencial v2: correr 1+5 del .bat con cambio real en input_raw",
-                "[M2/Windows] Investigar si OBRA_PRONTO y FUENTE son sobreescritos por Power Query desde tabla maestra",
-                "[M1/Linux] Revisar lógica generador_b52_incremental_v2.py — no capturó delta +31 inserts +1 update (con M2)"
+                "FOCO 1 — ETL A2/B52 (provisorio): retomar y avanzar",
+                "FOCO 2 — BD PostgreSQL: plantear alternativas descarga (Excel/ODBC/VPN-servidor) para desarrollo",
+                "FOCO 3 — GestionComp: retomar ETL sin .pq (sin Power Query)"
             ],
-            "notas_qa": "Jornada de diagnóstico y alineación M1/M2. SSH cron corregido. Desacople planif_pose resuelto con prefijos de entorno. Desfase generador v2 identificado y documentado por M2 — pendiente fix en próxima sesión.",
+            "notas_qa": "Jornada de instrumentación crew + schema v1.0 + fixes MD. Pipeline verde. Isindur en M2 lee JSON via HTTPS raw, no requiere clonar auditoria_ecosauron.",
             "estado_pipeline": "VERDE"
         }
     }
