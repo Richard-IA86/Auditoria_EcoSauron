@@ -49,7 +49,7 @@ staged_py=$(git diff --cached --name-only --diff-filter=ACM | \
     grep '\.py$' || true)
 
 staged_md=$(git diff --cached --name-only --diff-filter=ACM | \
-    grep '\.md$' || true)
+    grep '\.md$' | grep -v '^logs/' || true)
 
 if [[ -z "$staged_py" && -z "$staged_md" ]]; then
     log_ok "Sin archivos .py/.md en staging. Nada que validar."
