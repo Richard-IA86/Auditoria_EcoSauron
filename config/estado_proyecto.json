@@ -68,23 +68,16 @@
         "fin": {
             "fecha": "2026-05-06",
             "tareas_completadas": [
-                "crew.py instrumentado con métricas por paso (import time, _paso(), crew_metrics en JSON/MD)",
-                "cron_briefing.sh: timestamp inicio/fin + duración total en cron.log",
-                "novedades_diarias.md: crew status al tope del MD antes del semáforo",
-                "Paso 4 validado — crew corrido manual: 36.4s, 7/7 pasos OK, semáforo AMARILLO",
-                "5 estado_proyecto.json migrados a schema v1.0 (gestion_comp/planif_pose/richard_ia86_dev/data_analytics/bd_pose_b52)",
-                "PR #17 richard_ia86_dev mergeado — rama chore/schema-v1.0 eliminada",
-                "pre_commit_hook.sh: excluir logs/ del chequeo pymarkdown (output auto-generado)",
-                "Hook propagado a 6 repos",
-                "fix MD013/MD022/MD032/MD004/MD047 en 4 copilot-instructions.md",
-                "Isindur (M2): acceso al JSON via URL raw GitHub — sin clonar auditoria_ecosauron"
+                "fix(bd_pose_b52): JSON malformado en estado_proyecto.json L228 (trailing comma) — commit 254e577",
+                "PR #5 Auditoria_EcoSauron mergeado: fix MD040 code fences en README.md — commit 7544eb8",
+                "bd_pose_b52 sincronizado con origin (pull --rebase limpio)"
             ],
             "tareas_pendientes_manana": [
                 "FOCO 1 — ETL A2/B52 (provisorio): retomar y avanzar",
-                "FOCO 2 — BD PostgreSQL: plantear alternativas descarga (Excel/ODBC/VPN-servidor) para desarrollo",
-                "FOCO 3 — GestionComp: retomar ETL sin .pq (sin Power Query)"
+                "FOCO 2 — BD PostgreSQL: plantear alternativas descarga (Excel/ODBC/VPN-servidor)",
+                "FOCO 3 — GestionComp: ejecutar sin --dry-run, test PostgreSQL DEV, deploy producción"
             ],
-            "notas_qa": "Jornada de instrumentación crew + schema v1.0 + fixes MD. Pipeline verde. Isindur en M2 lee JSON via HTTPS raw, no requiere clonar auditoria_ecosauron.",
+            "notas_qa": "Jornada corta de mantenimiento. Fix JSON bd_pose_b52 + merge PR#5 README. dim_obras_drift sigue en AMARILLO (alerta crew pendiente de resolución).",
             "estado_pipeline": "VERDE"
         }
     }
