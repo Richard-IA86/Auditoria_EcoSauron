@@ -64,8 +64,8 @@
         }
     ],
     "desarrollo_local": {
-        "fecha_actualizacion": "2026-05-06",
-        "punto_de_partida_manana": "3 focos: (1) ETL A2/B52 provisorio, (2) BD PostgreSQL alternativas de descarga, (3) GestionComp ETL sin .pq"
+        "fecha_actualizacion": "2026-05-07",
+        "punto_de_partida_manana": "Confirmar ejecución M2: git pull POSE_ETL → leer ultimo_resultado. Luego check_isindur_sync en crew.py y limpiar rama feature/refactor-report-gerencias."
     },
     "jornada": {
         "fin": {
@@ -76,15 +76,22 @@
                 "9 archivos Python actualizados + config_ingesta.json",
                 "transformer.py: _LOOCKUPS_PATH módulo-nivel, eliminado fallback legacy",
                 "bd_pose_b52: 05_reglas_negocio.sql — motor de reglas PostgreSQL (6801dac)",
-                "black✅ flake8✅ mypy✅ pytest 226/226✅"
+                "black✅ flake8✅ mypy✅ pytest 226/226✅",
+                "crew_ecosauron: drift_tools.py — _LOOCKUPS_PATH corregido + check_isindur_sync tool (b04e1aa)",
+                "auditoria_ecosauron: estado_proyecto.json migrado a schema v1.0 (2d1bda5)",
+                "Isindur: copilot-instructions.md protocolo M1/M2 + morning_pipeline.py REPOS (de2b175)",
+                "POSE_ETL: m2_pendiente — paso 2 git pull Isindur (95fdcf7)",
+                "Memoria: Isindur lore + schema v1.0 + canon roles (Sauron/Isindur)"
             ],
             "tareas_pendientes_manana": [
-                "PR feature/refactor-report-gerencias → main (pendiente push + aprobación)",
-                "Sprint A BD: ejecutar 05_reglas_negocio.sql en Hetzner",
-                "Motor de reglas: endpoint FastAPI GET /api/v1/reglas/{tipo}",
-                "dim_obras_drift: sigue en AMARILLO desde crew_ecosauron"
+                "Confirmar ejecución M2: git pull POSE_ETL + leer ultimo_resultado",
+                "Registrar check_isindur_sync en crew.py como tool activa",
+                "Limpiar rama remota feature/refactor-report-gerencias (richard_ia86_dev)",
+                "Acordar con Isindur vía m2_pendiente: validar schema_version + eliminar isinstance",
+                "bd_pose_b52: 07_propagar_cambios_dim.sql (UPDATE retroactivo dimensiones)",
+                "POSE_ETL: scripts/pipeline_m2.py (punto de entrada único M2)"
             ],
-            "notas_qa": "Refactoring estructural QA-aprobado completado. Pipeline VERDE 226 tests. rama feature lista para PR.",
+            "notas_qa": "Arquitectura M1↔M2 instrumentada: canal m2_pendiente/ultimo_resultado, schema v1.0, check_isindur_sync. Pipeline auditoria VERDE. Isindur activo pero ultimo_resultado aún vacío.",
             "estado_pipeline": "VERDE"
         }
     }
