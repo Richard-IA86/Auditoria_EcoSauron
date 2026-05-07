@@ -66,18 +66,22 @@
     },
     "jornada": {
         "fin": {
-            "fecha": "2026-05-06",
+            "fecha": "2026-05-07",
             "tareas_completadas": [
-                "fix(bd_pose_b52): JSON malformado en estado_proyecto.json L228 (trailing comma) — commit 254e577",
-                "PR #5 Auditoria_EcoSauron mergeado: fix MD040 code fences en README.md — commit 7544eb8",
-                "bd_pose_b52 sincronizado con origin (pull --rebase limpio)"
+                "richard_ia86_dev: refactoring report_gerencias → raíz (bce1f10, ff2b59a)",
+                "input_raw reorganizado: quincenas/ fdl/ mensuales/ + data/lookups/ data/reference/",
+                "9 archivos Python actualizados + config_ingesta.json",
+                "transformer.py: _LOOCKUPS_PATH módulo-nivel, eliminado fallback legacy",
+                "bd_pose_b52: 05_reglas_negocio.sql — motor de reglas PostgreSQL (6801dac)",
+                "black✅ flake8✅ mypy✅ pytest 226/226✅"
             ],
             "tareas_pendientes_manana": [
-                "FOCO 1 — ETL A2/B52 (provisorio): retomar y avanzar",
-                "FOCO 2 — BD PostgreSQL: plantear alternativas descarga (Excel/ODBC/VPN-servidor)",
-                "FOCO 3 — GestionComp: ejecutar sin --dry-run, test PostgreSQL DEV, deploy producción"
+                "PR feature/refactor-report-gerencias → main (pendiente push + aprobación)",
+                "Sprint A BD: ejecutar 05_reglas_negocio.sql en Hetzner",
+                "Motor de reglas: endpoint FastAPI GET /api/v1/reglas/{tipo}",
+                "dim_obras_drift: sigue en AMARILLO desde crew_ecosauron"
             ],
-            "notas_qa": "Jornada corta de mantenimiento. Fix JSON bd_pose_b52 + merge PR#5 README. dim_obras_drift sigue en AMARILLO (alerta crew pendiente de resolución).",
+            "notas_qa": "Refactoring estructural QA-aprobado completado. Pipeline VERDE 226 tests. rama feature lista para PR.",
             "estado_pipeline": "VERDE"
         }
     }
