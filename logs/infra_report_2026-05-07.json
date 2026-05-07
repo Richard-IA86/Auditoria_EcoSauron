@@ -1,0 +1,247 @@
+{
+  "fecha": "2026-05-07",
+  "semaforo_global": "AMARILLO",
+  "alertas": [
+    {
+      "item": "repo_richard_ia86_dev",
+      "severidad": "WARN",
+      "accion": "Commits sin bajar"
+    },
+    {
+      "item": "dim_obras_drift",
+      "severidad": "WARN",
+      "accion": "dim_obras desincronizada"
+    }
+  ],
+  "crew_metrics": {
+    "inicio": "2026-05-07T06:50:11",
+    "duracion_segundos": 36.0,
+    "semaforo": "AMARILLO",
+    "pasos": {
+      "wireguard": {
+        "duracion_s": 2.3,
+        "status": "OK"
+      },
+      "containers": {
+        "duracion_s": 3.8,
+        "status": "OK"
+      },
+      "api_endpoint": {
+        "duracion_s": 7.3,
+        "status": "OK"
+      },
+      "postgres": {
+        "duracion_s": 6.3,
+        "status": "OK"
+      },
+      "git_status": {
+        "duracion_s": 5.6,
+        "status": "OK"
+      },
+      "git_pull_proyectos": {
+        "duracion_s": 4.4,
+        "status": "OK"
+      },
+      "drift_checks": {
+        "duracion_s": 6.4,
+        "status": "OK"
+      }
+    },
+    "alertas_count": 2
+  },
+  "infra": {
+    "wireguard": {
+      "status": "OK",
+      "stats": "rtt min/avg/max/mdev = 260.443/263.097/265.515/2.077 ms"
+    },
+    "containers": {
+      "status": "OK",
+      "contenedores": {
+        "pose_api": "Up 2 days",
+        "pose_gateway": "Up 2 days",
+        "pose_frontend": "Up 3 days"
+      },
+      "faltantes": []
+    },
+    "endpoint": {
+      "status": "OK",
+      "http_code": 200,
+      "meses": 0,
+      "gerencias": 0
+    },
+    "postgres": {
+      "status": "OK",
+      "bases": {
+        "dev": {
+          "status": "OK",
+          "db": "dw_grupopose_b52_dev",
+          "tablas": {
+            "fact_costos_b52": 34691,
+            "dim_obras_gerencias": null
+          }
+        },
+        "prod": {
+          "status": "OK",
+          "db": "dw_grupopose_b52_prod",
+          "tablas": {
+            "fact_costos_b52": 455664,
+            "dim_obras_gerencias": 582
+          }
+        }
+      }
+    }
+  },
+  "drift": {
+    "repos": {
+      "ecosauron": {
+        "rama": "main",
+        "commits_adelante": 0,
+        "commits_atras": 0,
+        "archivos_modificados": 0,
+        "detalle_modificados": [],
+        "detalle_atras": []
+      },
+      "gestion_comp": {
+        "rama": "main",
+        "commits_adelante": 0,
+        "commits_atras": 0,
+        "archivos_modificados": 0,
+        "detalle_modificados": [],
+        "detalle_atras": []
+      },
+      "planif_pose": {
+        "rama": "main",
+        "commits_adelante": 0,
+        "commits_atras": 0,
+        "archivos_modificados": 0,
+        "detalle_modificados": [],
+        "detalle_atras": []
+      },
+      "bd_pose_b52": {
+        "rama": "main",
+        "commits_adelante": 0,
+        "commits_atras": 0,
+        "archivos_modificados": 0,
+        "detalle_modificados": [],
+        "detalle_atras": []
+      },
+      "richard_ia86_dev": {
+        "rama": "feature/refactor-report-gerencias",
+        "commits_adelante": 1,
+        "commits_atras": 1,
+        "archivos_modificados": 0,
+        "detalle_modificados": [],
+        "detalle_atras": [
+          "fatal: no se ha configurado upstream para la rama 'feature/refactor-report-gerencias'"
+        ]
+      },
+      "data_analytics": {
+        "rama": "main",
+        "commits_adelante": 0,
+        "commits_atras": 0,
+        "archivos_modificados": 0,
+        "detalle_modificados": [],
+        "detalle_atras": []
+      }
+    },
+    "compose_drift": {
+      "status": "SINCRONIZADO",
+      "drift": false
+    },
+    "dim_obras_drift": {
+      "status": "DRIFT",
+      "filas_loockups_xlsx": 589,
+      "filas_postgres": 582,
+      "diferencia": 7,
+      "drift": true
+    }
+  },
+  "m2_pendiente": {
+    "tarea": "actualizar_arquitectura_repos",
+    "fecha_asignada": "2026-05-07",
+    "descripcion": "Repos planif_pose y Pose_DataPipeline fueron ELIMINADOS de GitHub hoy. El nuevo repo unificado es POSE_ETL. Seguir pasos en orden.",
+    "pasos": [
+      "1. git pull en GestionComp (sigue igual): cd C:\\Dev\\GestionComp && git pull",
+      "2. git pull en BD_POSE_B52 (sigue igual): cd C:\\Dev\\BD_POSE_B52 && git pull",
+      "3. Clonar POSE_ETL (NUEVO): git clone https://github.com/Richard-IA86/POSE_ETL.git C:\\Dev\\POSE_ETL",
+      "4. Eliminar o mover a archivo C:\\Dev\\Planif_POSE (repo borrado de GitHub)",
+      "5. Eliminar o mover a archivo C:\\Dev\\Pose_DataPipeline (repo borrado de GitHub)",
+      "6. Documentar resultado en POSE_ETL\\config\\estado_proyecto.json → ultimo_resultado y hacer push"
+    ],
+    "notas": "No editar codigo. Solo clonar y limpiar. Si algo falla, documentar en ultimo_resultado."
+  },
+  "proyectos": {
+    "ecosauron": {
+      "sync": "Sincronizado OK",
+      "estado_jornada": {
+        "fecha_cierre": "2026-05-07",
+        "tareas_pendientes": [
+          "PR feature/refactor-report-gerencias → main (pendiente push + aprobación)",
+          "Sprint A BD: ejecutar 05_reglas_negocio.sql en Hetzner",
+          "Motor de reglas: endpoint FastAPI GET /api/v1/reglas/{tipo}",
+          "dim_obras_drift: sigue en AMARILLO desde crew_ecosauron"
+        ],
+        "notas_qa": "Refactoring estructural QA-aprobado completado. Pipeline VERDE 226 tests. rama feature lista para PR.",
+        "estado_pipeline": "VERDE"
+      }
+    },
+    "gestion_comp": {
+      "sync": "Skipped (Regla de repositorio)",
+      "estado_jornada": {
+        "fecha_cierre": "2026-05-04",
+        "tareas_pendientes": [
+          "Ejecutar sin --dry-run y verificar escritura real en Loockups.xlsx",
+          "Test real con conexión PostgreSQL DEV (dim_obras_gerencias)",
+          "QA: tests/test_actualizar_obras_gerencias.py con fixtures sin FAT32",
+          "Verificar deploy en producción: www.gestionpose.com.ar"
+        ],
+        "notas_qa": "RN-001 registrada. Dry-run OK: 582 filas (434 ProntoNet + 148 históricas), 11 COMPENSABLE_CAMBIO accionables. Listo para ejecución real.",
+        "estado_pipeline": "VERDE"
+      }
+    },
+    "planif_pose": {
+      "sync": "Sincronizado OK",
+      "estado_jornada": {
+        "fecha_cierre": "2026-05-05",
+        "tareas_pendientes": [],
+        "notas_qa": "Jornada 2026-05-05: fix COMPENSABLE completado y verificado. Las 4 tareas del sprint anterior marcadas N/A (corresponden a repo Pose_DataPipeline/Linux). BaseCostosPOSE.xlsx regenerado con COMPENSABLE correcto en 455.698 filas.",
+        "estado_pipeline": "VERDE"
+      }
+    },
+    "bd_pose_b52": {
+      "sync": "Sincronizado OK",
+      "estado_jornada": {
+        "fecha_cierre": "2026-05-02",
+        "tareas_pendientes": [
+          "Reanudación de los sprints en curso"
+        ],
+        "notas_qa": "Cierre de jornada automático de la IA.",
+        "estado_pipeline": "VERDE"
+      }
+    },
+    "richard_ia86_dev": {
+      "sync": "Sincronizado OK",
+      "estado_jornada": {
+        "fecha_cierre": "2026-05-07",
+        "tareas_pendientes": [
+          "PR feature/refactor-report-gerencias → main (pendiente aprobación)",
+          "Sprint A BD: ejecutar 05_reglas_negocio.sql en servidor Hetzner",
+          "Motor de reglas: endpoint FastAPI GET /api/v1/reglas/{tipo}"
+        ],
+        "notas_qa": "Refactoring estructural QA-aprobado. Pipeline VERDE 226 tests.",
+        "estado_pipeline": "VERDE"
+      }
+    },
+    "data_analytics": {
+      "sync": "Sincronizado OK",
+      "estado_jornada": {
+        "fecha_cierre": "2026-05-02",
+        "tareas_pendientes": [
+          "Reanudación de los sprints en curso"
+        ],
+        "notas_qa": "Cierre de jornada automático de la IA.",
+        "estado_pipeline": "VERDE"
+      }
+    }
+  }
+}
