@@ -271,6 +271,7 @@ for d in "${WORKSPACES_DIR}"/*/; do
 done
 if [[ -d "${REPO_ROOT}/../Pose_API" ]]; then ALL_REPOS+=("${REPO_ROOT}/../Pose_API"); fi
 if [[ -d "${REPO_ROOT}/../Pose_Frontend" ]]; then ALL_REPOS+=("${REPO_ROOT}/../Pose_Frontend"); fi
+if [[ -d "${REPO_ROOT}/../POSE_ETL" ]]; then ALL_REPOS+=("${REPO_ROOT}/../POSE_ETL"); fi
 
 
 estado_json="⏳"
