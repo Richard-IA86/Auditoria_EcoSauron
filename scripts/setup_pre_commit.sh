@@ -106,6 +106,19 @@ for repo_path in "${WORKSPACES_DIR}"/*/; do
     fi
 done
 
+# Repos externos (fuera de workspaces/) auditados por el pipeline
+REPO_ROOT_PARENT="$(dirname "$REPO_ROOT")"
+for extra_repo in Pose_API Pose_Frontend POSE_ETL; do
+    extra_path="${REPO_ROOT_PARENT}/${extra_repo}"
+    if [[ -d "${extra_path}/.git" ]]; then
+        if deploy_hook "$extra_path"; then
+            exito=$(( exito + 1 ))
+        else
+            fallo=$(( fallo + 1 ))
+        fi
+    fi
+done
+
 # -----------------------------------------------------------
 # Resumen
 # -----------------------------------------------------------
