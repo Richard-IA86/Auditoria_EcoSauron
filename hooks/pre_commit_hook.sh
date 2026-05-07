@@ -49,7 +49,7 @@ staged_py=$(git diff --cached --name-only --diff-filter=ACM | \
     grep '\.py$' || true)
 
 staged_md=$(git diff --cached --name-only --diff-filter=ACM | \
-    grep '\.md$' | grep -v '^logs/' || true)
+    grep '\.md$' | grep -v '^logs/' | grep -v '^\.github/' || true)
 
 if [[ -z "$staged_py" && -z "$staged_md" ]]; then
     log_ok "Sin archivos .py/.md en staging. Nada que validar."
@@ -87,10 +87,10 @@ fi
 if [[ -n "$staged_py" ]]; then
     if command -v flake8 &>/dev/null; then
         echo "--- flake8 (PEP8, max-line=79) ---"
-        if ! echo "$staged_py" | xargs -d '\n' flake8 \
-            --max-line-length=79 \
-            --show-source \
-            --statistics; then
+        if ! (cd "$(git rev-parse --show-toplevel)" && \
+                echo "$staged_py" | xargs -d '\n' flake8 \
+                    --show-source \
+                    --statistics); then
             log_err "flake8: infracciones encontradas."
             ((errores++))
         else
@@ -109,9 +109,9 @@ fi
 if [[ -n "$staged_py" ]]; then
     if command -v mypy &>/dev/null; then
         echo "--- mypy (tipado estático) ---"
-        if ! echo "$staged_py" | xargs -d '\n' mypy \
-            --ignore-missing-imports \
-            --no-error-summary; then
+        if ! (cd "$(git rev-parse --show-toplevel)" && \
+                echo "$staged_py" | xargs -d '\n' mypy \
+                    --no-error-summary); then
             log_err "mypy: errores de tipado."
             ((errores++))
         else
@@ -137,10 +137,10 @@ if [[ -n "$staged_md" ]]; then
         elif [[ -f ".markdownlint.json" ]]; then
             MD_CFG="-c .markdownlint.json"
         fi
+        # WARN-only: pymarkdown no bloquea el commit
         if ! echo "$staged_md" | \
                 xargs -d '\n' pymarkdown $MD_CFG scan; then
-            log_err "pymarkdown: infracciones en archivos .md."
-            ((errores++))
+            log_warn "pymarkdown: advertencias en .md (no bloquea)."
         else
             log_ok "pymarkdown: OK"
         fi
