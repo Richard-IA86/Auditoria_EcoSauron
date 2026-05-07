@@ -1,9 +1,12 @@
 {
+    "schema_version": "1.0",
+    "repo": "auditoria_ecosauron",
+    "ultima_actualizacion": "2026-05-07",
     "auditoria_qa": [
         {
             "sprint": "morning-briefing-agent",
             "fecha": "2026-05-04",
-            "estado": "OPERATIVO",
+            "resultado": "EN_CURSO",
             "pipeline": "crew_ecosauron fef4b21",
             "accion_destacada": "Morning Briefing Agent operativo — modo directo sin LLM orchestration",
             "hallazgos": [
@@ -19,7 +22,7 @@
         {
             "sprint": "gemini-reviewer",
             "fecha": "2026-04-21",
-            "estado": "APROBADO_POR_QA",
+            "resultado": "APROBADO",
             "pipeline": "6/6 APROBADO",
             "accion_destacada": "Revisor AI Gemini Flash operativo — primer PR auto-aprobado",
             "hallazgos": [
@@ -36,7 +39,7 @@
         {
             "sprint": "sprint-17-hetzner",
             "fecha": "2026-05-04",
-            "estado": "COMPLETADO",
+            "resultado": "APROBADO",
             "accion_destacada": "Sprint-17 cerrado: crew_ecosauron, compose_drift, dim_obras_gerencias PROD, Pose_API gerencias JOIN, basicAuth www.gestionpose.com.ar operativo.",
             "tareas_completadas": [
                 "T5 — WireGuard activo (10.10.0.1=servidor / 10.10.0.2=iMac / 10.10.0.3=Asus)",
