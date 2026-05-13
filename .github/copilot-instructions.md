@@ -13,11 +13,9 @@
 > **"Prohibida la reestructuración sin evaluación QA."**
 
 - NO puedes agregar nuevas **carpetas** ni modificar la arquitectura base del repo.
-- Cualquier cambio estructural de carpetas requiere **aprobación explícita de QA**.
-- Si el usuario requiere un cambio de estructura de carpetas, debes advertirle
-  por esta regla y pedir **confirmación explícita de QA**.
+- Cualquier cambio estructural requiere **aprobación explícita de QA**.
 - Si QA aprueba crear una carpeta, es **OBLIGATORIO** crear un archivo `.gitkeep`
-  en su interior para asegurar su versionado en Git.
+  en su interior.
 
 ---
 
@@ -51,104 +49,20 @@ del código en los repositorios externos.
 
 ---
 
-## Protocolo de Sincronización — OBLIGATORIO ANTES DE EDITAR
-
-> **REGLA DE ORO:** Antes de modificar CUALQUIER archivo en un repo,
-> ejecutar `prefetch_check.sh` para verificar que origin no tiene
-> commits que el local desconoce.
-> Si detecta divergencia → `git pull` primero, LUEGO editar.
-> Ignorar esta regla puede causar sobreescritura silenciosa de trabajo
-> remoto o conflictos en el push de cierre.
-
-```bash
-# Verificar repo antes de editar (sin archivo específico)
-bash scripts/prefetch_check.sh <repo_path>
-
-# Verificar archivo específico antes de editarlo
-bash scripts/prefetch_check.sh <repo_path> <ruta_archivo>
-```
-
-- Salida `✔` = seguro editar.
-- Salida `✘ DIVERGENCIA` = hacer `git pull` primero, sin excepción.
-
----
-
-## Morning Briefing Agent — crew_ecosauron
+## Morning Briefing Agent
 
 Corre automáticamente cada mañana (lun-vie 6:50) vía crontab.
-Deposita `logs/infra_report_YYYY-MM-DD.json` en este repo.
+Deposita `logs/novedades_diarias.md` en este repo.
 
-**En el trigger "inicio de jornada", SIEMPRE leer ese JSON primero:**
+Semáforo global:
+- `VERDE` → infraestructura OK.
+- `AMARILLO` → alertas no críticas, reportar al usuario.
+- `ROJO` → fallo crítico (WireGuard, contenedores, API, PostgreSQL). Reportar primero.
 
-```bash
-# Ver el infra report más reciente
-ls -t /home/richard/Dev/auditoria_ecosauron/logs/infra_report_*.json \
-  | head -1 | xargs cat
-```
-
-Reglas de interpretación del campo `semaforo_global`:
-
-- `VERDE` → infraestructura OK, continuar con el protocolo normal.
-- `AMARILLO` → hay alertas no críticas; reportarlas al usuario antes
-  de mostrar tareas.
-- `ROJO` → hay un fallo crítico (WireGuard caído, contenedores down,
-  API sin respuesta, PostgreSQL inaccesible). **Reportar PRIMERO,
-  antes de cualquier otra tarea.** No continuar hasta que el usuario
-  lo acuse.
-
-El agente vive en `/home/richard/Dev/crew_ecosauron`.
-Para ejecutarlo manualmente:
+Ejecución manual:
 
 ```bash
 cd /home/richard/Dev/crew_ecosauron
 source venv/bin/activate
 python -m src.crew_ecosauron.main
-```
-
----
-
-## Protocolo de Jornada — Obligatorio
-
-### Trigger: "inicio de jornada"
-
-1. Leer directamente el reporte consolidado diario en `/home/richard/Dev/auditoria_ecosauron/logs/novedades_diarias.md`.
-2. Si el **Semáforo Global es ROJO**, detenerse y alertar al usuario inmediatamente.
-3. Si está en VERDE/AMARILLO, reportar un breve resumen de tareas pendientes para el repositorio actual de acuerdo al documento.
-4. **Actualizar el documento de Sprint/Backlog local** (p. ej. `TASKS.md` o
-   backlog) con el plan de acción del día, estructurando las novedades
-   extraídas y preguntando al usuario con qué iniciar.
-5. **No modificar ningún otro archivo ni ejecutar comandos Git (como pull)
-   en este trigger**, ya que el agente Crew se encarga de la sincronización
-   automatizada en segundo plano.
-
-### Trigger: "fin de jornada"
-
-> **CHECKLIST OBLIGATORIO — 3 repos a cerrar en este orden:**
->
-> - [ ] `crew_ecosauron` → `git status` + commit + push
-> - [ ] `auditoria_ecosauron` → `config/estado_proyecto.json` + commit + push
-> - [ ] Repos afectados del día → según instrucciones específicas
-
-Actualizar `config/estado_proyecto.json` en cada repo afectado
-según sus instrucciones específicas, luego:
-
-**Paso 1 — Verificar y pushear `crew_ecosauron` si tiene cambios pendientes:**
-
-```bash
-cd /home/richard/Dev/crew_ecosauron
-git status
-git add -A
-# Solo si hay cambios:
-git commit -m "chore(jornada): cierre YYYY-MM-DD"
-git push
-```
-
-**Paso 2 — Cerrar el orquestador `auditoria_ecosauron`:**
-
-```bash
-cd /home/richard/Dev/auditoria_ecosauron
-git status
-git add -A
-git commit -m "chore(jornada): cierre YYYY-MM-DD"
-git push
 ```

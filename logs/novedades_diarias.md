@@ -1,23 +1,19 @@
-# Briefing de Inicio de Jornada - 2026-05-12
+# Briefing de Inicio de Jornada - 2026-05-13
 
 ## Crew — Estado de Ejecución
 
-- **Inicio:** 2026-05-12T06:50:04
-- **Duración total:** 33.1s
+- **Inicio:** 2026-05-13T06:50:04
+- **Duración total:** 32.9s
 - **Pasos:**
   - `wireguard`: OK (2.3s)
-  - `containers`: OK (3.9s)
-  - `api_endpoint`: OK (7.3s)
-  - `postgres`: OK (6.8s)
-  - `git_status`: OK (5.2s)
-  - `git_pull_proyectos`: OK (3.9s)
-  - `drift_checks`: OK (3.6s)
+  - `containers`: OK (4.0s)
+  - `api_endpoint`: OK (8.7s)
+  - `postgres`: OK (6.5s)
+  - `git_status`: OK (4.4s)
+  - `git_pull_proyectos`: OK (3.3s)
+  - `drift_checks`: OK (3.7s)
 
-**Semáforo Global:** AMARILLO
-
-## Alertas
-
-- **repo_gestion_comp** (WARN): Commits sin bajar
+**Semáforo Global:** VERDE
 
 ## Estado de Proyectos
 
@@ -38,18 +34,12 @@
 ### gestion_comp
 
 - **Sincronización:** Skipped (Regla de repositorio)
-- **Último cierre:** 2026-05-11
+- **Último cierre:** 2026-05-12
 - **Pipeline:** VERDE
-- **Notas QA:** Se inició Sprint 1. El Ojo de Sauron preparó el andamiaje del diccionario de reportes. El diseño de...
+- **Notas QA:** Pipeline refactorizado a arquitectura Registry guiada. Archivos ahora enrutan por configuración y n...
 - **Pendientes:**
-  - Definir y discutir la arquitectura de ingesta de archivos. Diseñar opciones 4 y 5 híbridas para evitar error 'L...
-  - Probar flujo de archivos manuales vs automatizados
-
-### planif_pose
-
-- **Sincronización:** N/A
-- **Último cierre:** ?
-- **Pipeline:** ?
+  - Que el agente M2 (Isindur) ejecute la prueba end-to-end completa con el pipeline de descarga de ProntoNet activado
+  - Monitorear output real de base de datos vs Registry
 
 ### bd_pose_b52
 
@@ -70,13 +60,3 @@
   - PR feature/refactor-report-gerencias → main (pendiente aprobación)
   - Sprint A BD: ejecutar 05_reglas_negocio.sql en servidor Hetzner
   - Motor de reglas: endpoint FastAPI GET /api/v1/reglas/{tipo}
-
-### data_analytics
-
-- **Sincronización:** Fallo al sincronizar: remote: Repository not found.
-fatal: repositorio 'https://github.com/Ri...
-- **Último cierre:** 2026-05-02
-- **Pipeline:** VERDE
-- **Notas QA:** Cierre de jornada automático de la IA.
-- **Pendientes:**
-  - Reanudación de los sprints en curso
