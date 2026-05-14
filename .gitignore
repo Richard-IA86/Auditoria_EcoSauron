@@ -1,6 +1,7 @@
 # Directorios auto-generados por el pipeline
 workspaces/
-logs/
+logs/*
+!logs/novedades_diarias.md
 docs/reportes/
 
 # Python
