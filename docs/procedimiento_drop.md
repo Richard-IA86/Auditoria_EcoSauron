@@ -18,23 +18,23 @@ delta del bifurcador (`costos_b52_*_delta.csv`).
 
 ---
 
-## Arquitectura: por qué GERENCIA viene NULL del bifurcador
+## Arquitectura: GERENCIA en el bifurcador
 
-`BaseCostosPOSE.xlsx` en M2 genera la columna `GERENCIA` vacía. La query
-Power Query de M2 no hace el lookup a `Loockups.xlsx` para esa columna.
+`BaseCostosPOSE.xlsx` en M2 ahora genera GERENCIA al 100% — el bifurcador
+fue corregido por Isindur (commit `88b25d0`, 2026-05-15) para incluir
+GERENCIA en `_sha256_importe` y verificar cobertura 0 vacíos.
 
-**Esto no es un defecto del procedimiento — es arquitectura correcta:**
+**Flujo actual:**
 
-- `dim_obras_gerencias` en PostgreSQL es la única fuente de verdad para
-  GERENCIA. Se carga desde `Loockups.xlsx` (hoja `Obras_Gerencias`).
-- El paso `[4/5]` del script hace `UPDATE fact SET GERENCIA = dim.gerencia`
-  después del INSERT. Eso es la asignación canónica: la dimensión gobierna
-  a la hecho.
-- Si M2 corrige la PQ para poblar GERENCIA en el CSV, el paso `[4/5]`
-  simplemente sobreescribe con el mismo valor (idempotente).
+- GERENCIA viene poblada en el CSV fuente (473,098 / 473,098).
+- El paso `[4/5]` sincroniza con `dim_obras_gerencias`: para los registros
+  que tienen match en dim, GERENCIA del dim sobreescribe el valor del CSV
+  (la dimensión sigue gobernando).
+- Los registros sin match en dim (actualmente 65 obras) conservan el valor
+  GERENCIA que trae el CSV.
+- Post-sincronización: 473,098 / 473,098 filas con GERENCIA no nula.
 
-**Cobertura actual:** 473,033 / 473,098 filas (99.9%). Las 65 restantes
-corresponden a obras sin asignación en `dim_obras_gerencias`.
+**Cobertura actual:** 473,098 / 473,098 filas (100%).
 
 ---
 
@@ -149,7 +149,7 @@ python src/loader/recarga_masiva_b53_prod.py
 | `[1/5]` | DROP TABLE + CREATE TABLE (17 cols) | < 1 seg |
 | `[2/5]` | Leer CSV completo con pandas | ~30 seg |
 | `[3/5]` | INSERT en batches de 50,000 filas via WireGuard | ~40 min |
-| `[4/5]` | UPDATE GERENCIA desde `dim_obras_gerencias` | < 5 seg |
+| `[4/5]` | Sincronizar GERENCIA con `dim_obras_gerencias` + validar cobertura | < 5 seg |
 | `[5/5]` | Validar COUNT(*) DB == filas CSV | < 1 seg |
 
 ### Salida esperada al finalizar
@@ -158,7 +158,7 @@ python src/loader/recarga_masiva_b53_prod.py
 ✅ RECARGA COMPLETA — todo cuadra.
       Filas CSV        : 473,098
       COUNT(*) DB      : 473,098
-      GERENCIA poblada : 473,033
+      GERENCIA poblada : 473,098
       Filas esperadas  : 473,098
 ```
 
@@ -233,9 +233,10 @@ git push
 
 ## Causas raíz conocidas y estado
 
-- **GERENCIA NULL en CSV**: PQ de BaseCostosPOSE.xlsx (M2) no hace lookup de
-  GERENCIA a Loockups.xlsx. El paso `[4/5]` compensa vía UPDATE desde
-  `dim_obras_gerencias`. **Pendiente** resolver en PQ.
+- **GERENCIA NULL en CSV**: ✅ RESUELTO (2026-05-15, commit `88b25d0` Isindur).
+  El bifurcador fue corregido — GERENCIA viene 100% poblada desde el CSV.
+  El paso `[4/5]` sincroniza con `dim_obras_gerencias` (dim gobierna sobre
+  CSV para los registros con match; los 65 sin match conservan valor CSV).
 - **`wc -l` sobrecontaba filas**: `\n` embebidos en campos
   DETALLE/OBSERVACION/PROVEEDOR. Usar pandas para contar filas reales.
 - **`.env` no persiste**: `config/.env` está en `.gitignore`. Recrear
