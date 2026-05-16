@@ -1,17 +1,17 @@
-# Briefing de Inicio de Jornada - 2026-05-14
+# Briefing de Inicio de Jornada - 2026-05-15
 
 ## Crew — Estado de Ejecución
 
-- **Inicio:** 2026-05-14T06:50:09
-- **Duración total:** 31.3s
+- **Inicio:** 2026-05-15T06:50:10
+- **Duración total:** 32.3s
 - **Pasos:**
   - `wireguard`: OK (2.3s)
-  - `containers`: OK (3.9s)
-  - `api_endpoint`: OK (7.9s)
-  - `postgres`: OK (6.4s)
-  - `git_status`: OK (4.5s)
-  - `git_pull_proyectos`: OK (2.9s)
-  - `drift_checks`: OK (3.5s)
+  - `containers`: OK (4.4s)
+  - `api_endpoint`: OK (7.2s)
+  - `postgres`: OK (6.6s)
+  - `git_status`: OK (5.0s)
+  - `git_pull_proyectos`: OK (3.1s)
+  - `drift_checks`: OK (3.6s)
 
 **Semáforo Global:** VERDE
 
